@@ -61,6 +61,11 @@ input, select {
 }
 
 input[type="date"] { cursor: pointer; }
+label.check { display: flex; align-items: center; gap: 8px; font-weight: 400; margin: 12px 0 0; }
+label.check:first-child { margin-top: 0; }
+label.check input { width: auto; margin: 0; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
 
 .result { background: var(--accent-soft); border-color: transparent; }
 .big { font-size: 1.4rem; font-weight: 700; white-space: nowrap; }

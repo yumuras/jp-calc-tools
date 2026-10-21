@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>営業日計算｜○営業日後は何日？期間の営業日数も（祝日・年末年始対応）</title>
+  <meta name="description" content="基準日から○営業日後・前の日付と、2つの日付の間の営業日数を計算します。土日・祝日・振替休日を自動で除外し、年末年始（12/29〜1/3）を休みにするかも選べます。">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header>
+    <a href="../">← 計算ツール一覧</a>
+    <h1>営業日計算</h1>
+    <p class="lead">土日・祝日・振替休日を除いて、○営業日後の日付や、期間の営業日数を計算します。</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <label class="check"><input type="checkbox" id="yearEnd" checked> 年末年始（12/29〜1/3）も休みにする</label>
+    </div>
+
+    <h2>○営業日後・前は何日？</h2>
+    <form class="card" id="formAdd">
+      <label for="base">基準日</label>
+      <input type="date" id="base">
+
+      <label for="n">営業日数</label>
+      <div class="row">
+        <input type="number" id="n" value="5" min="0" max="1000" inputmode="numeric">
+        <select id="dir">
+          <option value="1">営業日後</option>
+          <option value="-1">営業日前</option>
+        </select>
+      </div>
+    </form>
+    <section class="card result" id="resultAdd" hidden></section>
+
+    <h2>期間の営業日数は？</h2>
+    <form class="card" id="formCount">
+      <label for="from">開始日</label>
+      <input type="date" id="from">
+
+      <label for="to">終了日</label>
+      <input type="date" id="to">
+
+      <label class="check"><input type="checkbox" id="excludeStart"> 開始日は数えない</label>
+    </form>
+    <section class="card result" id="resultCount" hidden></section>
+
+    <h2>数え方</h2>
+    <p>「○営業日後」は、基準日の翌日から数えます。たとえば金曜日の1営業日後は、祝日でなければ翌週の月曜日です。</p>
+    <p>「期間の営業日数」は、開始日と終了日の両方を含めて数えます。開始日を含めない数え方をしたい場合は、チェックを入れてください。</p>
+    <p>祝日は「国民の祝日に関する法律」にもとづいて計算しています。振替休日と、祝日に挟まれた国民の休日にも対応しています。2020〜2099年に対応しています。</p>
+
+    <h2>よくある質問</h2>
+    <h3>「3営業日以内に発送」はいつまで？</h3>
+    <p>注文日を基準日にして「3営業日後」を計算した日が目安です。ただし、何時までの注文を当日扱いにするかはお店によって違います。</p>
+    <h3>会社独自の休業日（夏季休暇など）は除外できますか？</h3>
+    <p>今は土日・祝日・年末年始のみです。会社ごとの休業日は反映していません。</p>
+  </main>
+
+  <footer>
+    計算は入力した端末の中だけで行い、入力内容はどこにも送信されません。
+  </footer>
+
+  <script type="module">
+    import { addBusinessDays, countBusinessDays } from "../assets/eigyobi.js";
+    import { MIN_YEAR, MAX_YEAR } from "../assets/holidays.js";
+    import { parseDate, formatDate } from "../assets/yukyu.js";
+
+    const $ = (id) => document.getElementById(id);
+    const toInput = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const DOW = ["日", "月", "火", "水", "木", "金", "土"];
+    const fmt = (d) => `${formatDate(d)}（${DOW[d.getDay()]}）`;
+    const inRange = (d) => d.getFullYear() >= MIN_YEAR && d.getFullYear() <= MAX_YEAR;
+    const holidayList = (items) => items.length
+      ? `<p>途中の休み：${items.map((h) => `${formatDate(h.date)} ${h.reason}`).join("、")}</p>`
+      : "";
+
+    const today = new Date();
+    $("base").value = toInput(today);
+    $("from").value = toInput(new Date(today.getFullYear(), today.getMonth(), 1));
+    $("to").value = toInput(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+
+    function renderAdd() {
+      const base = parseDate($("base").value);
+      const n = Math.trunc(Number($("n").value));
+      if (!base || !Number.isFinite(n) || n < 0) {
+        $("resultAdd").hidden = true;
+        return;
+      }
+      const options = { yearEnd: $("yearEnd").checked };
+      const signed = n * Number($("dir").value);
+      try {
+        const r = addBusinessDays(base, signed, options);
+        if (!inRange(r.date)) throw new RangeError();
+        const label = signed >= 0 ? "営業日後" : "営業日前";
+        $("resultAdd").innerHTML =
+          `<p>${fmt(base)}の${n}${label}は</p><p class="big">${fmt(r.date)}</p>` + holidayList(r.skipped);
+      } catch {
+        $("resultAdd").innerHTML = `<p>${MIN_YEAR}〜${MAX_YEAR}年の範囲で計算してください。</p>`;
+      }
+      $("resultAdd").hidden = false;
+    }
+
+    function renderCount() {
+      const from = parseDate($("from").value);
+      const to = parseDate($("to").value);
+      if (!from || !to) {
+        $("resultCount").hidden = true;
+        return;
+      }
+      if (!inRange(from) || !inRange(to)) {
+        $("resultCount").innerHTML = `<p>${MIN_YEAR}〜${MAX_YEAR}年の範囲で計算してください。</p>`;
+      } else {
+        const r = countBusinessDays(from, to, { yearEnd: $("yearEnd").checked, excludeStart: $("excludeStart").checked });
+        $("resultCount").innerHTML =
+          `<p>営業日数は</p><p class="big">${r.businessDays}日</p><p>（暦の上では${r.calendarDays}日）</p>` + holidayList(r.holidays);
+      }
+      $("resultCount").hidden = false;
+    }
+
+    // PCのブラウザでは右端のアイコンを押さないとカレンダーが開かないので、欄のどこを押しても開くようにする
+    for (const input of document.querySelectorAll('input[type="date"]')) {
+      input.addEventListener("click", () => {
+        try {
+          input.showPicker?.();
+        } catch {
+          // showPicker が使えない環境では通常の入力のまま
+        }
+      });
+    }
+
+    const renderAll = () => { renderAdd(); renderCount(); };
+    $("formAdd").addEventListener("input", renderAdd);
+    $("formCount").addEventListener("input", renderCount);
+    $("yearEnd").addEventListener("change", renderAll);
+    renderAll();
+  </script>
+</body>
+</html>
