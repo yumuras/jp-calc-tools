@@ -11,7 +11,7 @@
 ## ローカルで見る
 
 ```bash
-python3 -m http.server 8000   # http://localhost:8000/ を開く
+uv run python -m http.server 8000   # http://localhost:8000/ を開く
 ```
 
 `file://` で直接開くと、ES modules の読み込みが止まるので、簡易サーバー経由で開いてください。
