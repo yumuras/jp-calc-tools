@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>有給休暇の付与日数計算｜入社日から次の付与日と日数がわかる</title>
+  <meta name="description" content="入社日と働き方を入れるだけで、有給休暇が次にいつ・何日付与されるか、今いくつまで持てるか、年5日の取得義務の対象かを計算します。パート・アルバイトの比例付与にも対応。">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header>
+    <a href="../">← 計算ツール一覧</a>
+    <h1>有給休暇の付与日数計算</h1>
+    <p class="lead">入社日と働き方から、次に有給が付く日と日数、今持てる最大日数がわかります。</p>
+  </header>
+
+  <main>
+    <form class="card" id="form">
+      <label for="hire">入社日</label>
+      <input type="date" id="hire" required>
+
+      <label for="type">働き方</label>
+      <select id="type"></select>
+
+      <label for="asof">いつ時点で見るか</label>
+      <input type="date" id="asof" required>
+    </form>
+
+    <section class="card result" id="result" hidden>
+      <div id="summary"></div>
+    </section>
+
+    <section id="schedule-section" hidden>
+      <h2>付与のスケジュール</h2>
+      <table>
+        <thead><tr><th>付与日</th><th>勤続</th><th>付与日数</th></tr></thead>
+        <tbody id="schedule"></tbody>
+      </table>
+    </section>
+
+    <h2>計算のルール</h2>
+    <p>労働基準法39条にもとづき、入社から6か月続けて勤務し、出勤率が8割以上なら有給休暇が付与されます。その後は1年ごとに付与され、勤続6年半で上限の20日になります。</p>
+    <p>週の所定労働時間が30時間未満で、週4日以下（または年216日以下）の人は、働く日数に応じて少ない日数が付与されます（比例付与）。</p>
+    <p>有給の時効は2年なので、使わなかった分は翌年まで繰り越せます。最大の保有日数は、直近2回分の付与日数の合計です。</p>
+    <p>年10日以上付与される人には、付与日から1年以内に5日を取得させることが会社に義務づけられています。</p>
+
+    <h2>よくある質問</h2>
+    <h3>パートやアルバイトでも有給はありますか？</h3>
+    <p>あります。週1日以上働いていれば、条件を満たすと比例付与で有給が付きます。</p>
+    <h3>会社の付与日がこの計算と違います</h3>
+    <p>全社員の付与日を4月1日などにそろえる会社（斉一的付与）では、法律より早く付与されることがあります。正確な日付は就業規則を確認してください。</p>
+
+    <p class="note">この計算は法律上の最低基準にもとづく目安です。出勤率8割未満の年は付与されないなど、個別の事情は反映していません。</p>
+  </main>
+
+  <footer>
+    計算は入力した端末の中だけで行い、入力内容はどこにも送信されません。
+  </footer>
+
+  <script type="module">
+    import { WORK_TYPES, grantSchedule, statusOn, parseDate, formatDate } from "../assets/yukyu.js";
+
+    const $ = (id) => document.getElementById(id);
+    const toInput = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    for (const [value, label] of Object.entries(WORK_TYPES)) {
+      $("type").add(new Option(label, value));
+    }
+    $("asof").value = toInput(new Date());
+
+    function render() {
+      const hire = parseDate($("hire").value);
+      const asOf = parseDate($("asof").value);
+      if (!hire || !asOf) {
+        $("result").hidden = true;
+        $("schedule-section").hidden = true;
+        return;
+      }
+      const type = $("type").value;
+      const s = statusOn(hire, type, asOf);
+
+      const lines = [];
+      if (s.nextGrant) {
+        lines.push(`<p>次の付与は <span class="big">${formatDate(s.nextGrant.date)}</span> に <span class="big">${s.nextGrant.days}日</span></p>`);
+      }
+      if (s.lastGrant) {
+        lines.push(`<p>直近の付与：${formatDate(s.lastGrant.date)} に ${s.lastGrant.days}日（勤続${s.lastGrant.yearsOfService}年）</p>`);
+        lines.push(`<p>今持てる最大日数：<strong>${s.maxBalance}日</strong>（1日も使っていない場合）</p>`);
+        lines.push(s.fiveDayDuty
+          ? `<p>年5日の取得義務：<strong>対象</strong>（${formatDate(s.fiveDayDeadline)}の前日までに5日）</p>`
+          : `<p>年5日の取得義務：対象外（直近の付与が10日未満）</p>`);
+      } else {
+        lines.push(`<p>まだ有給は付与されていません。</p>`);
+      }
+      $("summary").innerHTML = lines.join("");
+      $("result").hidden = false;
+
+      const lastDate = s.lastGrant?.date.getTime();
+      $("schedule").innerHTML = grantSchedule(hire, type, 8)
+        .map((r) => `<tr class="${r.date.getTime() === lastDate ? "current" : ""}"><td>${formatDate(r.date)}</td><td>${r.yearsOfService}年</td><td>${r.days}日</td></tr>`)
+        .join("");
+      $("schedule-section").hidden = false;
+    }
+
+    $("form").addEventListener("input", render);
+    render();
+  </script>
+</body>
+</html>
