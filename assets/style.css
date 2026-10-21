@@ -85,3 +85,24 @@ table.compact th:first-child, table.compact td:first-child { text-align: left; }
 .tools a { font-weight: 600; }
 
 footer { color: var(--muted); font-size: 0.85rem; padding-top: 32px; padding-bottom: 32px; }
+
+button {
+  font: inherit;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--surface);
+  cursor: pointer;
+}
+button.remove { background: transparent; color: var(--muted); border-color: var(--border); flex: 0 0 auto; }
+.row > button { flex: 0 0 auto; }
+.hint { color: var(--muted); font-size: 0.85rem; margin: 6px 0 0; }
+
+.appliance .head { margin-bottom: 4px; }
+.appliance .head input { font-weight: 600; }
+.appliance .row label { font-size: 0.85rem; margin-top: 8px; }
+.costs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 16px 0 0; }
+.costs div { text-align: center; }
+.costs dt { color: var(--muted); font-size: 0.8rem; }
+.costs dd { margin: 0; white-space: nowrap; }

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>家電の電気代計算｜1時間・1日・1か月・1年でいくら？</title>
+  <meta name="description" content="家電の消費電力（W）と使う時間から、1時間・1日・1か月・1年の電気代を計算します。エアコンや電子レンジなどの目安をワンタップで入力でき、複数の家電の合計も出せます。">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header>
+    <a href="../">← 計算ツール一覧</a>
+    <h1>家電の電気代計算</h1>
+    <p class="lead">消費電力（W）と使う時間から、1時間・1日・1か月・1年の電気代がわかります。</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <label for="price">電気料金の単価（円/kWh）</label>
+      <input type="number" id="price" min="0" step="0.1" inputmode="decimal">
+      <p class="hint">初期値は目安単価の31円です。検針票の「電力量料金 ÷ 使用量」で自分の単価に近づけられます。</p>
+    </div>
+
+    <div id="list"></div>
+
+    <div class="card">
+      <label for="preset">家電を追加</label>
+      <div class="row">
+        <select id="preset"></select>
+        <button type="button" id="add">追加</button>
+      </div>
+    </div>
+
+    <section class="card result" id="total"></section>
+
+    <h2>計算のしかた</h2>
+    <p>電気代は「消費電力（kW）× 使った時間（h）× 単価（円/kWh）」で求められます。たとえば1,000Wの電子レンジを1時間使うと、1kW × 1時間 × 31円 = 31円です。</p>
+    <p>消費電力は、本体の銘板や取扱説明書に「消費電力 ○○W」と書かれています。エアコンや冷蔵庫は運転状況によって消費電力が上下するので、ここでの家電の目安は平均的な値です。</p>
+
+    <h2>よくある質問</h2>
+    <h3>31円/kWhはどこから来た数字ですか？</h3>
+    <p>全国家庭電気製品公正取引協議会が、家電のカタログなどで電気代を表示するときの目安として定めている単価（税込）です。実際の単価は電力会社や料金プラン、燃料費調整額によって変わります。</p>
+    <h3>待機電力も入りますか？</h3>
+    <p>入りません。使っている時間の電気代だけを計算しています。</p>
+
+    <p class="note">家電の消費電力の目安は、機種・設定・季節によって大きく変わります。正確に知りたい場合は、お使いの家電の消費電力を入力してください。</p>
+  </main>
+
+  <footer>
+    計算は入力した端末の中だけで行い、入力内容はどこにも送信されません。
+  </footer>
+
+  <template id="row-template">
+    <div class="card appliance">
+      <div class="row head">
+        <input type="text" class="name" aria-label="家電の名前">
+        <button type="button" class="remove" aria-label="この家電を削除">削除</button>
+      </div>
+      <div class="row">
+        <div><label>消費電力（W）</label><input type="number" class="watts" min="0" step="1" inputmode="decimal"></div>
+        <div><label>1日の時間</label><input type="number" class="hours" min="0" max="24" step="0.1" inputmode="decimal"></div>
+        <div><label>月の日数</label><input type="number" class="days" min="0" max="31" step="1" inputmode="numeric"></div>
+      </div>
+      <dl class="costs"></dl>
+    </div>
+  </template>
+
+  <script type="module">
+    import { DEFAULT_PRICE, PRESETS, applianceCost, totalCost, formatYen } from "../assets/denkidai.js";
+
+    const $ = (id) => document.getElementById(id);
+    $("price").value = DEFAULT_PRICE;
+
+    $("preset").add(new Option("自分で入力する", ""));
+    PRESETS.forEach((p, i) => $("preset").add(new Option(`${p.name}（${p.watts}W）`, String(i))));
+
+    const rows = () => [...document.querySelectorAll(".appliance")];
+    const readRow = (el) => ({
+      watts: el.querySelector(".watts").value,
+      hoursPerDay: el.querySelector(".hours").value,
+      daysPerMonth: el.querySelector(".days").value,
+    });
+
+    function addRow({ name, watts, hours }) {
+      const el = $("row-template").content.firstElementChild.cloneNode(true);
+      el.querySelector(".name").value = name;
+      el.querySelector(".watts").value = watts;
+      el.querySelector(".hours").value = hours;
+      el.querySelector(".days").value = 30;
+      el.querySelector(".remove").addEventListener("click", () => { el.remove(); render(); });
+      el.addEventListener("input", render);
+      $("list").append(el);
+      render();
+    }
+
+    function render() {
+      const price = $("price").value;
+      for (const el of rows()) {
+        const c = applianceCost(readRow(el), price);
+        el.querySelector(".costs").innerHTML =
+          `<div><dt>1時間</dt><dd>${formatYen(c.perHour)}</dd></div>` +
+          `<div><dt>1日</dt><dd>${formatYen(c.perDay)}</dd></div>` +
+          `<div><dt>1か月</dt><dd><strong>${formatYen(c.perMonth)}</strong></dd></div>` +
+          `<div><dt>1年</dt><dd>${formatYen(c.perYear)}</dd></div>`;
+      }
+      const list = rows();
+      if (list.length === 0) {
+        $("total").innerHTML = "<p>家電を追加すると、ここに合計が出ます。</p>";
+        return;
+      }
+      const t = totalCost(list.map(readRow), price);
+      $("total").innerHTML =
+        `<p>${list.length}台の合計</p>` +
+        `<p>1か月 <span class="big">${formatYen(t.perMonth)}</span>　1年 <span class="big">${formatYen(t.perYear)}</span></p>` +
+        `<p>使用量：1か月 約${Math.round(t.kwhPerMonth).toLocaleString("ja-JP")}kWh</p>`;
+    }
+
+    $("add").addEventListener("click", () => {
+      const p = PRESETS[$("preset").value];
+      addRow(p ? { name: p.name, watts: p.watts, hours: p.hours } : { name: "家電", watts: "", hours: 1 });
+    });
+    $("price").addEventListener("input", render);
+
+    addRow({ name: PRESETS[0].name, watts: PRESETS[0].watts, hours: PRESETS[0].hours });
+  </script>
+</body>
+</html>
