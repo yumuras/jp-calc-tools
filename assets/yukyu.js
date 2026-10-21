@@ -17,6 +17,16 @@ export const WORK_TYPES = {
   w1: "週1日（年48〜72日）",
 };
 
+/**
+ * 週の所定労働日数・時間から付与区分を決める。
+ * 週30時間以上、または週5日以上なら通常の付与。それ以外は日数に応じた比例付与。週0日は対象外（null）。
+ */
+export function classifyWorkType(daysPerWeek, hoursPerWeek) {
+  if (hoursPerWeek >= 30 || daysPerWeek >= 5) return "full";
+  if (daysPerWeek >= 1 && daysPerWeek <= 4) return `w${daysPerWeek}`;
+  return null;
+}
+
 function daysInMonth(year, monthIndex) {
   return new Date(year, monthIndex + 1, 0).getDate();
 }

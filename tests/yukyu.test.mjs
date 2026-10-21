@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { addMonthsElapsed, grantSchedule, parseDate, statusOn } from "../assets/yukyu.js";
+import { addMonthsElapsed, classifyWorkType, grantSchedule, parseDate, statusOn } from "../assets/yukyu.js";
 
 const ymd = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
@@ -67,4 +67,12 @@ test("日付の読み取り", () => {
   assert.equal(ymd(parseDate("2026-04-01")), "2026-4-1");
   assert.equal(parseDate("2026-02-30"), null);
   assert.equal(parseDate("abc"), null);
+});
+
+test("働き方の判定: 週30時間以上なら日数が少なくても通常付与", () => {
+  assert.equal(classifyWorkType(4, 32), "full");
+  assert.equal(classifyWorkType(5, 20), "full");
+  assert.equal(classifyWorkType(3, 18), "w3");
+  assert.equal(classifyWorkType(1, 4), "w1");
+  assert.equal(classifyWorkType(0, 0), null);
 });

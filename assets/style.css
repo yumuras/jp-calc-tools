@@ -70,6 +70,10 @@ table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 600; }
 tr.current td { font-weight: 700; }
+.scroll { overflow-x: auto; }
+table.compact { font-size: 0.85rem; }
+table.compact th, table.compact td { white-space: nowrap; text-align: center; padding: 8px 3px; }
+table.compact th:first-child, table.compact td:first-child { text-align: left; }
 
 .tools { list-style: none; padding: 0; }
 .tools li { margin: 12px 0; }
