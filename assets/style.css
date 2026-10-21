@@ -106,3 +106,9 @@ button.remove { background: transparent; color: var(--muted); border-color: var(
 .costs div { text-align: center; }
 .costs dt { color: var(--muted); font-size: 0.8rem; }
 .costs dd { margin: 0; white-space: nowrap; }
+
+.pay { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 0; }
+.pay dt { color: var(--muted); font-size: 0.85rem; }
+.pay dd { margin: 0; font-size: 1.3rem; font-weight: 700; white-space: nowrap; }
+.pay .input dd { color: var(--muted); font-weight: 400; }
+.row label { font-size: 0.85rem; }
