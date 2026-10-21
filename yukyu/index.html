@@ -102,6 +102,17 @@
       $("schedule-section").hidden = false;
     }
 
+    // PCのブラウザでは右端のアイコンを押さないとカレンダーが開かないので、欄のどこを押しても開くようにする
+    for (const input of document.querySelectorAll('input[type="date"]')) {
+      input.addEventListener("click", () => {
+        try {
+          input.showPicker?.();
+        } catch {
+          // showPicker が使えない環境では通常の入力のまま
+        }
+      });
+    }
+
     $("form").addEventListener("input", render);
     render();
   </script>

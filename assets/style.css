@@ -60,6 +60,8 @@ input, select {
   color: var(--text);
 }
 
+input[type="date"] { cursor: pointer; }
+
 .result { background: var(--accent-soft); border-color: transparent; }
 .big { font-size: 1.4rem; font-weight: 700; white-space: nowrap; }
 .note { background: var(--warn-soft); border-radius: 8px; padding: 10px 12px; font-size: 0.92rem; }
