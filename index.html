@@ -6,7 +6,7 @@
   <title>くらしと仕事の計算ツール</title>
   <meta name="description" content="パート・アルバイトの有給日数や営業日計算、家電の電気代、時給と年収の換算など、仕事とくらしの「これってどうなる？」をすぐ計算できる無料ツール集です。">
   <link rel="canonical" href="https://jp-calc-tools.pages.dev/">
-  <meta name="theme-color" content="#2f6fb3">
+  <meta name="theme-color" content="#2563eb">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="くらしと仕事の計算ツール">
@@ -28,40 +28,100 @@
   "inLanguage": "ja"
 }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-  <header>
+  <div class="site-bar">
+    <a class="logo" href="./"><span class="logo-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7.5h7M8.5 12h1M11.5 12h1M14.5 12h1M8.5 15.5h1M11.5 15.5h1M14.5 15.5h1"/></svg></span>くらしと仕事の計算ツール</a>
+  </div>
+  <header class="hero">
     <h1>くらしと仕事の計算ツール</h1>
-    <p class="lead">入力はすべて端末の中で計算し、どこにも送信しません。</p>
+    <p class="lead">有給の日数、給料の換算、電気代、怪しいリンクの見分けまで。仕事とくらしの「これってどうなる？」を、無料・登録なしですぐ計算できます。</p>
+    <ul class="badges">
+      <li>無料・登録不要</li>
+      <li>入力は送信しない</li>
+      <li>スマホでも使える</li>
+    </ul>
   </header>
   <main>
-    <ul class="tools">
-      <li>
-        <a href="yukyu/">パート・アルバイトの有給は何日？</a><br>
-        週の勤務日数と入社日から、法律上もらえる有給休暇の最低日数がわかります。
-      </li>
-      <li>
-        <a href="eigyobi/">営業日計算</a><br>
-        ○営業日後の日付や、期間の営業日数を計算します。土日・祝日・年末年始に対応。
-      </li>
-      <li>
-        <a href="denkidai/">家電の電気代計算</a><br>
-        消費電力と使う時間から、1時間・1日・1か月・1年の電気代がわかります。複数の家電の合計も。
-      </li>
-      <li>
-        <a href="kyuyo/">時給・月給・年収の換算</a><br>
-        時給・日給・月給・年収のどれか1つから、残りをまとめて換算します。労働時間や賞与にも対応。
-      </li>
-      <li>
-        <a href="password/">パスワードの強さチェック・生成</a><br>
-        パスワードが総当たりで破られるまでの時間を計算します。安全なパスワードの生成も。
-      </li>
-      <li>
-        <a href="url-check/">怪しいURLチェック</a><br>
-        SMSやメールのリンクを貼ると、本当の行き先や偽装の特徴をその場でチェックします。
-      </li>
-    </ul>
+    <section class="category">
+      <h2>仕事・お金</h2>
+      <ul class="tool-grid">
+        <li>
+          <a class="tool-card" href="yukyu/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M8 2.5v4M16 2.5v4M3 10h18M8 14h3M8 17.5h6"/></svg></span>
+            <span class="tool-name">パート・アルバイトの有給は何日？</span>
+            <span class="tool-desc">週の勤務日数と入社日から、法律上もらえる有給休暇の最低日数がわかります。</span>
+            <span class="tool-when">こんなときに：「パートに有給はない」と言われたとき</span>
+          </a>
+        </li>
+        <li>
+          <a class="tool-card" href="kyuyo/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3.5l6 7.5 6-7.5M12 11v9.5M7.5 13.5h9M7.5 17h9"/></svg></span>
+            <span class="tool-name">時給・月給・年収の換算</span>
+            <span class="tool-desc">時給・日給・月給・年収のどれか1つから、残りをまとめて換算します。賞与にも対応。</span>
+            <span class="tool-when">こんなときに：時給の求人と月給の求人を比べたいとき</span>
+          </a>
+        </li>
+        <li>
+          <a class="tool-card" href="eigyobi/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M8 2.5v4M16 2.5v4M3 10h18M9 15.5l2 2 4-4"/></svg></span>
+            <span class="tool-name">営業日計算</span>
+            <span class="tool-desc">○営業日後の日付や、期間の営業日数を計算します。土日・祝日・年末年始に対応。</span>
+            <span class="tool-when">こんなときに：「5営業日以内に返送」の期限を知りたいとき</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="category">
+      <h2>くらし</h2>
+      <ul class="tool-grid">
+        <li>
+          <a class="tool-card" href="denkidai/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z"/></svg></span>
+            <span class="tool-name">家電の電気代計算</span>
+            <span class="tool-desc">消費電力と使う時間から、1時間・1日・1か月・1年の電気代がわかります。複数の家電の合計も。</span>
+            <span class="tool-when">こんなときに：エアコンやドライヤーの電気代が気になったとき</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="category">
+      <h2>セキュリティ</h2>
+      <ul class="tool-grid">
+        <li>
+          <a class="tool-card" href="url-check/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8l8 3v6.1c0 4.9-3.4 8.2-8 9.3-4.6-1.1-8-4.4-8-9.3V5.8z"/><path d="M8.8 12.2l2.2 2.2 4.2-4.4"/></svg></span>
+            <span class="tool-name">怪しいURLチェック</span>
+            <span class="tool-desc">SMSやメールのリンクを貼ると、本当の行き先や偽装の特徴をその場でチェックします。</span>
+            <span class="tool-when">こんなときに：宅配便や銀行を名乗るSMSが届いたとき</span>
+          </a>
+        </li>
+        <li>
+          <a class="tool-card" href="password/">
+            <span class="tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="8" cy="15.5" r="4.5"/><path d="M11.3 12.2L20.5 3M17 6.5l3 3M14.5 9l2 2"/></svg></span>
+            <span class="tool-name">パスワードの強さチェック・生成</span>
+            <span class="tool-desc">総当たりで破られるまでの時間がわかります。安全なパスワードも作れます。</span>
+            <span class="tool-when">こんなときに：パスワードを新しく決めるとき</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="features">
+      <h2>このサイトの特徴</h2>
+      <dl>
+        <div><dt>入力した内容はどこにも送られません</dt><dd>計算はすべて、お使いのスマホやパソコンの中で行います。給料やパスワードのような人に見せたくない数字も、安心して入れられます。</dd></div>
+        <div><dt>誰が計算しても同じ答えになるものだけ</dt><dd>法律や決まった計算式で答えが決まるものに絞っています。会社ごとのルールで変わる部分は、ページの中で注意書きしています。</dd></div>
+        <div><dt>根拠を明記しています</dt><dd>各ページの下に、計算の根拠になる法令や数字の出典と、最終更新日を載せています。</dd></div>
+        <div><dt>計算ミスを防ぐ仕組み</dt><dd>計算の部分には自動テストを用意し、法改正や誤りに気づいたときはすぐに直します。</dd></div>
+      </dl>
+    </section>
   </main>
   <footer>
     <nav class="footer-nav"><a href="">計算ツール一覧</a><a href="about/">運営者情報</a><a href="privacy/">プライバシーポリシー</a></nav>
