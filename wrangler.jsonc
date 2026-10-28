@@ -1,9 +1,8 @@
-// Cloudflare Workers で静的サイトとして配信する設定（ビルドなし）。
+// Cloudflare Workers で、Astro が書き出した dist/ を静的サイトとして配信する設定。
+// デプロイ前に build.command で Astro のビルドを走らせる。
 {
   "name": "jp-calc-tools",
   "compatibility_date": "2026-10-01",
-  "assets": {
-    "directory": ".",
-    "not_found_handling": "404-page"
-  }
+  "build": { "command": "npm run build" },
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" }
 }

@@ -1,0 +1,53 @@
+---
+import Base from "../layouts/Base.astro";
+import { CATEGORIES, toolBySlug } from "../data/tools.js";
+
+const title = "くらしと仕事の計算ツール";
+const description = "パート・アルバイトの有給日数や営業日計算、家電の電気代、時給と年収の換算など、仕事とくらしの「これってどうなる？」をすぐ計算できる無料ツール集です。";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: title,
+  url: new URL("/", Astro.site).href,
+  description,
+  inLanguage: "ja",
+};
+---
+<Base title={title} description={description} path="/" ogType="website" jsonLd={jsonLd} headerClass="hero">
+  <Fragment slot="header">
+    <h1>くらしと仕事の計算ツール</h1>
+    <p class="lead">有給の日数、給料の換算、電気代、怪しいリンクの見分けまで。仕事とくらしの「これってどうなる？」を、無料・登録なしですぐ計算できます。</p>
+    <ul class="badges">
+      <li>無料・登録不要</li>
+      <li>入力は送信しない</li>
+      <li>スマホでも使える</li>
+    </ul>
+  </Fragment>
+  {CATEGORIES.map((category) => (
+    <section class="category">
+      <h2>{category.name}</h2>
+      <ul class="tool-grid">
+        {category.tools.map(toolBySlug).map((t) => (
+          <li>
+            <a class="tool-card" href={`/${t.slug}/`}>
+              <span class="tool-icon" aria-hidden="true" set:html={t.icon} />
+              <span class="tool-name">{t.name}</span>
+              <span class="tool-desc">{t.desc}</span>
+              <span class="tool-when">こんなときに：{t.when}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <section class="features">
+    <h2>このサイトの特徴</h2>
+    <dl>
+      <div><dt>入力した内容はどこにも送られません</dt><dd>計算はすべて、お使いのスマホやパソコンの中で行います。給料やパスワードのような人に見せたくない数字も、安心して入れられます。</dd></div>
+      <div><dt>誰が計算しても同じ答えになるものだけ</dt><dd>法律や決まった計算式で答えが決まるものに絞っています。会社ごとのルールで変わる部分は、ページの中で注意書きしています。</dd></div>
+      <div><dt>根拠を明記しています</dt><dd>各ページの下に、計算の根拠になる法令や数字の出典と、最終更新日を載せています。</dd></div>
+      <div><dt>計算ミスを防ぐ仕組み</dt><dd>計算の部分には自動テストを用意し、法改正や誤りに気づいたときはすぐに直します。</dd></div>
+    </dl>
+  </section>
+</Base>

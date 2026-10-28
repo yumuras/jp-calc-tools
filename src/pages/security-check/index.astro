@@ -1,0 +1,180 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="security-check"
+  title="セキュリティ診断｜あなたのブラウザは安全？ボタン1つで100点満点チェック"
+  description="ボタンを押すだけで、今使っているブラウザが最新か、サポート切れのOSではないか、通信が暗号化されているか、IPアドレスが漏れていないかを診断し、100点満点で採点します。外部への送信はありません。"
+  name="セキュリティ診断"
+  category="SecurityApplication"
+  updated="2026-10-28"
+>
+  <Fragment slot="header">
+    <h1>セキュリティ診断</h1>
+    <p class="lead">ボタンを押すだけで、今使っているブラウザと接続の安全性を100点満点で診断します。</p>
+  </Fragment>
+  <section class="card scan" id="scan">
+    <div class="gauge" id="gauge" style="--p: 0">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="gauge-track" cx="60" cy="60" r="52"/>
+        <circle class="gauge-bar" cx="60" cy="60" r="52" pathLength="100"/>
+      </svg>
+      <div class="gauge-center">
+        <span class="gauge-value" id="gauge-value">--</span>
+        <span class="gauge-unit" id="gauge-unit">点</span>
+      </div>
+    </div>
+    <p class="scan-status" id="status">準備ができたらボタンを押してください</p>
+    <button type="button" class="scan-button" id="start">診断をはじめる</button>
+    <p class="hint">診断はこの端末の中だけで行い、結果や情報はどこにも送信しません。</p>
+  </section>
+
+  <section id="report" hidden>
+    <h2>診断結果</h2>
+    <ul class="checks" id="checks"></ul>
+  </section>
+
+  <section id="info-section" hidden>
+    <h2>このサイトから見えるあなたの情報</h2>
+    <p>どのWebサイトも、特別な許可なしに、少なくともこれくらいの情報は読み取れます。組み合わせると、あなたの端末を見分ける手がかり（指紋）になることがあります。</p>
+    <dl class="info-grid" id="info"></dl>
+  </section>
+
+  <h2>診断していること</h2>
+  <ul>
+    <li><strong>ブラウザが最新か</strong>：Chrome・Edge・Firefox は約4週ごと、Safari は年1回新しい版が出ます。その周期から、今日の日付で出ているはずの版を計算し、使っている版と比べます。</li>
+    <li><strong>サポート中のOSか</strong>：Windows 7・8 など、セキュリティ更新が終わったOSを見つけます。</li>
+    <li><strong>暗号化された接続か</strong>：このページとの通信が HTTPS で暗号化されているかを確かめます。</li>
+    <li><strong>IPアドレスが漏れていないか</strong>：ビデオ通話などに使う機能（WebRTC）から、端末のIPアドレスがサイトに見えてしまわないかを調べます。外部のサーバーには接続しません。</li>
+  </ul>
+
+  <h2>よくある質問</h2>
+  <h3>100点なら、ウイルスや詐欺の心配はありませんか？</h3>
+  <p>いいえ。この診断は、ブラウザとOSの「更新されているか」など、外から確かめられる基本の項目だけを見ています。怪しいリンクを開かない、パスワードを使い回さないといった習慣も大切です。リンクは<a href="/url-check/">怪しいURLチェック</a>、パスワードは<a href="/password/">パスワードの強さチェック</a>で確かめられます。</p>
+  <h3>ブラウザを更新するにはどうすればいいですか？</h3>
+  <p>Chrome・Edge は右上のメニューから「ヘルプ」→「（ブラウザ名）について」を開くと、自動で更新が始まります。iPhone の Safari は、iOS のアップデート（設定 → 一般 → ソフトウェアアップデート）で更新されます。</p>
+  <h3>点数が毎回少し変わるのはなぜ？</h3>
+  <p>ブラウザの設定や、使っているネットワークによって結果が変わることがあります。たとえば会社のネットワークやVPNを使っているときは、IPアドレスの項目が変わることがあります。</p>
+
+  <p class="note">診断は、ブラウザが自分で名乗っている情報（User-Agent）などにもとづく目安です。ブラウザの設定や拡張機能によっては、正しく判定できないことがあります。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li><a href="https://chromiumdash.appspot.com/schedule" rel="noopener">Chromium のリリース予定</a>・<a href="https://whattrainisitnow.com/calendar/" rel="noopener">Firefox のリリース予定</a>（新しい版が出る周期）</li>
+    <li><a href="https://www.ipa.go.jp/security/" rel="noopener">IPA 情報処理推進機構「情報セキュリティ」</a></li>
+  </ul>
+
+  <script>
+    import { evaluate, score, grade, classifyCandidates, parseBrowser, parseOs, BROWSER_LABELS } from "../../lib/seccheck.js";
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const STATUS = { pass: ["ok", "OK"], warn: ["warn", "注意"], fail: ["danger", "危険"] };
+
+    // WebRTC：STUNサーバーを使わず、端末内で作られる候補だけを見る（外部には通信しない）
+    async function checkWebRTC() {
+      if (!("RTCPeerConnection" in window)) return { status: "none", addresses: [] };
+      const lines = [];
+      const pc = new RTCPeerConnection({ iceServers: [] });
+      try {
+        pc.createDataChannel("check");
+        pc.onicecandidate = (e) => e.candidate && lines.push(e.candidate.candidate);
+        await pc.setLocalDescription(await pc.createOffer());
+        await Promise.race([
+          new Promise((r) => (pc.onicegatheringstatechange = () => pc.iceGatheringState === "complete" && r())),
+          wait(1500),
+        ]);
+      } catch {
+        // 使えない環境では「見えない」扱い
+      } finally {
+        pc.close();
+      }
+      return classifyCandidates(lines);
+    }
+
+    function setGauge(value) {
+      $("gauge").style.setProperty("--p", value);
+      $("gauge-value").textContent = value;
+    }
+
+    async function animateTo(target) {
+      if (reduceMotion) return setGauge(target);
+      const start = performance.now();
+      const duration = 1200;
+      await new Promise((resolve) => {
+        const step = (t) => {
+          const k = Math.min(1, (t - start) / duration);
+          setGauge(Math.round(target * (1 - Math.pow(1 - k, 3))));
+          k < 1 ? requestAnimationFrame(step) : resolve();
+        };
+        requestAnimationFrame(step);
+      });
+    }
+
+    function renderInfo() {
+      const b = parseBrowser(navigator.userAgent);
+      const conn = navigator.connection;
+      const rows = [
+        ["ブラウザ", `${BROWSER_LABELS[b.name]}${b.version ? ` ${b.version}` : ""}`],
+        ["OS", parseOs(navigator.userAgent).name],
+        ["言語", navigator.language || "不明"],
+        ["タイムゾーン", Intl.DateTimeFormat().resolvedOptions().timeZone || "不明"],
+        ["画面の大きさ", `${screen.width} × ${screen.height}（倍率 ${devicePixelRatio}）`],
+        ["CPUのコア数", navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency}個` : "非公開"],
+        ["メモリの目安", navigator.deviceMemory ? `${navigator.deviceMemory}GB以上` : "非公開"],
+        ["回線の目安", conn?.downlink ? `約${conn.downlink}Mbps（${conn.effectiveType ?? ""}）` : "非公開"],
+        ["Cookie", navigator.cookieEnabled ? "有効" : "無効"],
+        ["追跡拒否の意思表示（GPC）", navigator.globalPrivacyControl ? "オン" : "オフ"],
+      ];
+      $("info").innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("");
+      $("info-section").hidden = false;
+    }
+
+    async function run() {
+      $("start").disabled = true;
+      $("report").hidden = true;
+      $("checks").innerHTML = "";
+      $("scan").classList.add("scanning");
+      $("scan").classList.remove("done-ok", "done-warn", "done-danger");
+      setGauge(0);
+      $("gauge-value").textContent = "--";
+
+      const steps = ["ブラウザのバージョンを確認中…", "OSを確認中…", "通信の暗号化を確認中…", "IPアドレスの漏れを確認中…"];
+      let webrtc;
+      for (const [i, text] of steps.entries()) {
+        $("status").textContent = text;
+        if (i === 3) webrtc = await checkWebRTC();
+        if (!reduceMotion) await wait(550);
+      }
+
+      const items = evaluate({
+        userAgent: navigator.userAgent,
+        protocol: location.protocol,
+        isSecureContext: window.isSecureContext,
+        webrtc,
+      });
+      const points = score(items);
+      const g = grade(points);
+
+      $("scan").classList.remove("scanning");
+      await animateTo(points);
+      $("scan").classList.add(`done-${g.level}`);
+      $("status").innerHTML = `判定：<strong class="verdict ${g.level}">${g.label}</strong>`;
+
+      $("checks").innerHTML = items
+        .map((item) => {
+          const [cls, label] = STATUS[item.status];
+          return `<li class="check-item ${cls}"><span class="check-badge">${label}</span><div><strong>${esc(item.title)}</strong><p class="check-detail">${esc(item.detail)}</p><p class="check-advice">${esc(item.advice)}</p></div></li>`;
+        })
+        .join("");
+      $("report").hidden = false;
+      renderInfo();
+      $("start").disabled = false;
+      $("start").textContent = "もう一度診断する";
+    }
+
+    $("start").addEventListener("click", run);
+  </script>
+</Tool>

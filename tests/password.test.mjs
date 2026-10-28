@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { CHARSETS, AMBIGUOUS, charsetSize, entropyBits, crackSeconds, formatDuration, checkPassword, generatePassword } from "../assets/password.js";
+import { CHARSETS, AMBIGUOUS, charsetSize, entropyBits, crackSeconds, formatDuration, checkPassword, generatePassword } from "../src/lib/password.js";
 
 test("文字の種類の数", () => {
   assert.equal(charsetSize("abc"), 26);
