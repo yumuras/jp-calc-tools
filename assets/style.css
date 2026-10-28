@@ -19,10 +19,12 @@
   --radius: 16px;
   --radius-sm: 10px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg: #0b1020;
     --surface: #131a2c;
     --surface-2: #182136;
@@ -41,6 +43,27 @@
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0b1020;
+  --surface: #131a2c;
+  --surface-2: #182136;
+  --text: #e8ecf4;
+  --muted: #9aa5b8;
+  --border: #243049;
+  --accent: #60a5fa;
+  --accent-strong: #93c5fd;
+  --accent-soft: #15233f;
+  --accent-2: #22d3ee;
+  --warn-soft: #2d2412;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --ok: #4ade80;
+  --shadow-sm: none;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 
 * { box-sizing: border-box; }
@@ -77,6 +100,8 @@ a:hover { color: var(--accent-strong); }
   -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
 }
+.site-bar-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 720px; margin: 0 auto; }
+.site-bar-inner .logo { margin: 0; max-width: none; }
 .logo {
   display: flex;
   align-items: center;
@@ -447,3 +472,28 @@ footer { margin-top: 72px; padding-top: 24px; padding-bottom: 40px; color: var(-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- ライト／ダーク切り替え ---------- */
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  flex: 0 0 auto;
+}
+.theme-toggle:hover { transform: rotate(-15deg); box-shadow: var(--shadow); border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .theme-toggle .icon-sun { display: block; }
+  :root:not([data-theme]) .theme-toggle .icon-moon { display: none; }
+}
+body, .card, .tool-card, .site-bar, input, select, textarea { transition-property: background-color, border-color, color, transform, box-shadow; }
