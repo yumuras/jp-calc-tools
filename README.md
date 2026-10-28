@@ -36,13 +36,14 @@ npm test   # Node.js 20以上。依存パッケージなし
 `wrangler.jsonc` の設定で、リポジトリ直下を静的サイトとして配信します（ビルドなし）。`tests/` や README などは `.assetsignore` で配信対象から外しています。
 
 1. Cloudflare のダッシュボードで Workers & Pages → Create application → このリポジトリを接続
-2. ビルドコマンドは空欄、デプロイコマンドは `npx wrangler deploy`
-3. main に push するたびに自動で公開されます
+2. ビルドコマンドは空欄、デプロイコマンドは `npx wrangler deploy`（Previews Base 側のデプロイコマンドは `npx wrangler versions upload`）
+3. 独自ドメイン（mainichi-keisan.com）は Workers の設定 → Domains でカスタムドメインとして接続
+4. main に push するたびに自動で公開されます
 
-公開URLは `https://jp-calc-tools.saitoona56.workers.dev` を前提に、各ページの canonical・OGP・構造化データと `sitemap.xml`・`robots.txt` に書いています。URLが変わったら次で一括置換します。
+公開URLは `https://mainichi-keisan.com` を前提に、各ページの canonical・OGP・構造化データと `sitemap.xml`・`robots.txt` に書いています。URLが変わったら次で一括置換します。
 
 ```bash
-grep -rl 'jp-calc-tools.saitoona56.workers.dev' --include='*.html' --include='*.xml' --include='*.txt' . | xargs sed -i 's#https://jp-calc-tools.saitoona56.workers.dev#https://新しいURL#g'
+grep -rl 'mainichi-keisan.com' --include='*.html' --include='*.xml' --include='*.txt' . | xargs sed -i 's#https://mainichi-keisan.com#https://新しいURL#g'
 ```
 
 ## ツールを足すとき
