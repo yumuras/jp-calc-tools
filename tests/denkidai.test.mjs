@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { applianceCost, formatYen, totalCost } from "../assets/denkidai.js";
+import { applianceCost, formatYen, totalCost } from "../src/lib/denkidai.js";
 
 test("1000Wを1時間使うと31円（単価31円/kWh）", () => {
   const c = applianceCost({ watts: 1000, hoursPerDay: 1, daysPerMonth: 30 }, 31);

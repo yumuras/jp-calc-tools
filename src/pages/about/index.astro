@@ -1,0 +1,30 @@
+---
+import Page from "../../layouts/Page.astro";
+---
+<Page
+  title="運営者情報｜くらしと仕事の計算ツール"
+  description="くらしと仕事の計算ツールの運営者と、ツールを作るときの方針、お問い合わせ先です。"
+  path="/about/"
+  name="運営者情報"
+>
+  <Fragment slot="header">
+    <h1>運営者情報</h1>
+  </Fragment>
+  <table>
+    <tr><th>サイト名</th><td>くらしと仕事の計算ツール</td></tr>
+    <tr><th>URL</th><td>https://mainichi-keisan.com/</td></tr>
+    <tr><th>お問い合わせ</th><td><a href="https://docs.google.com/forms/d/e/1FAIpQLSdJ9BEGGseUnQbLsTP0nGzK-CpiDSN_oQXJLsRvNsza-TPtGQ/viewform" target="_blank" rel="noopener">お問い合わせフォーム</a>（Googleフォーム）</td></tr>
+  </table>
+
+  <h2>このサイトについて</h2>
+  <p>仕事とくらしの「これってどうなる？」を、登録なし・無料ですぐ計算できるツール集です。個人で作って運営しています。</p>
+
+  <h2>ツールを作るときの方針</h2>
+  <ul>
+    <li>会社や人によって答えが変わるものではなく、法律や決まった計算式で、誰が計算しても同じ答えになるものを扱います。</li>
+    <li>計算の根拠になる法令や数字は、各ページの「出典・更新日」に載せています。</li>
+    <li>入力した内容は端末の中だけで計算し、どこにも送信しません。</li>
+    <li>計算ロジックには自動テストを書き、法改正や誤りに気づいたときはすぐ直します。</li>
+  </ul>
+  <p>計算結果の誤りに気づいたときは、お問い合わせからお知らせいただけると助かります。</p>
+</Page>

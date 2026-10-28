@@ -1,0 +1,76 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="kyuyo"
+  title="時給・月給・年収の換算｜時給○円は年収いくら？"
+  description="時給・日給・月給・年収のどれか1つを入れると、残りをまとめて換算します。1日の労働時間・週の勤務日数・賞与にも対応。求人の比較や、時給と月給の仕事どちらが得かの判断に。"
+  name="時給・月給・年収の換算"
+  category="UtilitiesApplication"
+  updated="2026-10-28"
+>
+  <Fragment slot="header">
+    <h1>時給・月給・年収の換算</h1>
+    <p class="lead">時給・日給・月給・年収のどれか1つを入れると、残りの3つがわかります。</p>
+  </Fragment>
+  <form class="card" id="form">
+    <label for="amount">金額（額面）</label>
+    <div class="row">
+      <input type="number" id="amount" min="0" step="1" value="1500" inputmode="numeric">
+      <select id="unit"></select>
+    </div>
+
+    <div class="row">
+      <div><label for="hours">1日の労働時間</label><input type="number" id="hours" min="0.5" max="24" step="0.5" value="8" inputmode="decimal"></div>
+      <div><label for="days">週の勤務日数</label><input type="number" id="days" min="1" max="7" step="0.5" value="5" inputmode="decimal"></div>
+      <div><label for="bonus">賞与（か月分）</label><input type="number" id="bonus" min="0" max="12" step="0.5" value="0" inputmode="decimal"></div>
+    </div>
+  </form>
+
+  <section class="card result" id="result"></section>
+
+  <h2>計算のしかた</h2>
+  <p>月の労働時間は「1日の時間 × 週の日数 × 52週 ÷ 12か月」で求めています。8時間・週5日なら、1か月は約173.3時間、1年は2,080時間です。</p>
+  <p>年収は「月給 × (12 + 賞与の月数)」です。賞与が月給の4か月分なら、年収は月給の16か月分になります。残業代や手当は含みません。</p>
+
+  <h2>よくある質問</h2>
+  <h3>手取りはいくらになりますか？</h3>
+  <p>このページの金額はすべて額面（税金や社会保険料を引く前）です。手取りは、ここから所得税・住民税・社会保険料などが引かれた金額になります。</p>
+  <h3>時給の仕事と月給の仕事、どちらが得か比べたい</h3>
+  <p>月給の求人を、同じ労働時間の条件で時給に換算すると比べやすくなります。賞与がある場合は、賞与の月数も入れると年収ベースで比べられます。</p>
+
+  <p class="note">計算結果は目安です。実際の給与は、会社の所定労働時間、祝日や年末年始の休み、残業代、各種手当によって変わります。</p>
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+      <li>換算はすべて四則演算です。1年＝52週、1か月＝52週÷12で計算しています（法令や毎年変わる数字は使っていません）。</li>
+  </ul>
+
+  <script>
+    import { UNITS, convertPay, formatYen } from "../../lib/kyuyo.js";
+
+    const $ = (id) => document.getElementById(id);
+    for (const [value, label] of Object.entries(UNITS)) $("unit").add(new Option(label, value));
+
+    function render() {
+      const unit = $("unit").value;
+      const r = convertPay($("amount").value, unit, {
+        hoursPerDay: $("hours").value,
+        daysPerWeek: $("days").value,
+        bonusMonths: $("bonus").value,
+      });
+      if (!r) {
+        $("result").innerHTML = "<p>労働時間は1日24時間まで、勤務日数は週1〜7日で入れてください。</p>";
+        return;
+      }
+      const rows = Object.entries(UNITS)
+        .map(([key, label]) => `<div${key === unit ? ' class="input"' : ""}><dt>${label}</dt><dd>${formatYen(r[key])}</dd></div>`)
+        .join("");
+      $("result").innerHTML =
+        `<dl class="pay">${rows}</dl>` +
+        `<p class="hint">月の労働時間 約${r.monthlyHours.toFixed(1)}時間、年間 約${Math.round(r.annualHours).toLocaleString("ja-JP")}時間で計算</p>`;
+    }
+
+    $("form").addEventListener("input", render);
+    render();
+  </script>
+</Tool>
