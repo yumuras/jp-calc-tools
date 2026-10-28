@@ -39,10 +39,10 @@ npm test   # Node.js 20以上。依存パッケージなし
 2. ビルドコマンドは空欄、デプロイコマンドは `npx wrangler deploy`
 3. main に push するたびに自動で公開されます
 
-公開URLは `https://jp-calc-tools.pages.dev` を前提に、各ページの canonical・OGP・構造化データと `sitemap.xml`・`robots.txt` に書いています。URLが変わったら次で一括置換します。
+公開URLは `https://jp-calc-tools.saitoona56.workers.dev` を前提に、各ページの canonical・OGP・構造化データと `sitemap.xml`・`robots.txt` に書いています。URLが変わったら次で一括置換します。
 
 ```bash
-grep -rl 'jp-calc-tools.pages.dev' --include='*.html' --include='*.xml' --include='*.txt' . | xargs sed -i 's#https://jp-calc-tools.pages.dev#https://新しいURL#g'
+grep -rl 'jp-calc-tools.saitoona56.workers.dev' --include='*.html' --include='*.xml' --include='*.txt' . | xargs sed -i 's#https://jp-calc-tools.saitoona56.workers.dev#https://新しいURL#g'
 ```
 
 ## ツールを足すとき

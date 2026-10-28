@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jp-calc-tools.pages.dev/sitemap.xml
+Sitemap: https://jp-calc-tools.saitoona56.workers.dev/sitemap.xml
