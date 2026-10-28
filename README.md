@@ -10,6 +10,9 @@
 | `eigyobi/` | 営業日計算（○営業日後・前、期間の営業日数。祝日は `assets/holidays.js` で2020〜2099年を規則から計算） |
 | `denkidai/` | 家電の電気代計算（1時間・1日・1か月・1年、複数家電の合計。単価の初期値は目安単価31円/kWh） |
 | `kyuyo/` | 時給・日給・月給・年収の換算（1日の時間・週の日数・賞与の月数に対応。額面のみ） |
+| `password/` | パスワードの強さチェック（総当たりで破られるまでの時間と弱点）と生成（`crypto.getRandomValues`） |
+| `url-check/` | 怪しいURLチェック（本当の行き先、企業名の偽装、そっくり文字、短縮URLなどをルールで判定。通信しない） |
+| `about/` `privacy/` `404.html` | 運営者情報、プライバシーポリシー・免責事項、404ページ |
 
 ## ローカルで見る
 
@@ -43,5 +46,5 @@ grep -rl 'jp-calc-tools.pages.dev' --include='*.html' --include='*.xml' --includ
 
 1. `<ツール名>/index.html` と `assets/<ツール名>.js` を作る
 2. `tests/<ツール名>.test.mjs` に計算ロジックのテストを書く
-3. トップの `index.html` の一覧に追加する
+3. トップの `index.html` と `404.html` の一覧、各ツールの「ほかの計算ツール」に追加する
 4. head に canonical・OGP・構造化データ（既存ページをコピー）を入れ、`sitemap.xml` にURLを足す
