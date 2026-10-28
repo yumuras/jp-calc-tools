@@ -31,10 +31,12 @@ npm test   # Node.js 20以上。依存パッケージなし
 
 計算ロジックは `assets/*.js` に置き、画面（HTML）とテストの両方から読み込みます。
 
-## 公開（Cloudflare Pages）
+## 公開（Cloudflare Workers）
 
-1. Cloudflare のダッシュボードで Workers & Pages → Create → Pages → このリポジトリを接続
-2. ビルドコマンドは空欄、出力ディレクトリは `/`
+`wrangler.jsonc` の設定で、リポジトリ直下を静的サイトとして配信します（ビルドなし）。`tests/` や README などは `.assetsignore` で配信対象から外しています。
+
+1. Cloudflare のダッシュボードで Workers & Pages → Create application → このリポジトリを接続
+2. ビルドコマンドは空欄、デプロイコマンドは `npx wrangler deploy`
 3. main に push するたびに自動で公開されます
 
 公開URLは `https://jp-calc-tools.pages.dev` を前提に、各ページの canonical・OGP・構造化データと `sitemap.xml`・`robots.txt` に書いています。URLが変わったら次で一括置換します。
