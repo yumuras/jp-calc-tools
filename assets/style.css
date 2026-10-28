@@ -144,3 +144,20 @@ button:disabled { opacity: 0.5; cursor: default; }
   .level-fair, .verdict.warn { color: #f0b450; }
   .level-strong, .level-very-strong, .verdict.ok { color: #6fd08f; }
 }
+
+.hero { padding-top: 40px; }
+.hero h1 { font-size: 1.8rem; }
+.badges { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.badges li { background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; font-weight: 600; }
+.category h2 { font-size: 1rem; color: var(--muted); margin: 32px 0 8px; }
+.tool-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.tool-card { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); text-decoration: none; transition: border-color 0.15s; }
+.tool-card:hover, .tool-card:focus-visible { border-color: var(--accent); }
+.tool-name { color: var(--accent); font-weight: 700; font-size: 1.05rem; }
+.tool-desc { font-size: 0.92rem; }
+.tool-when { color: var(--muted); font-size: 0.82rem; margin-top: auto; padding-top: 4px; }
+.features dl { margin: 0; }
+.features dl div { margin: 0 0 16px; }
+.features dt { font-weight: 700; }
+.features dd { margin: 2px 0 0; color: var(--muted); font-size: 0.92rem; }
+@media (max-width: 400px) { .tool-grid { grid-template-columns: 1fr; } }
