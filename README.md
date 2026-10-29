@@ -12,6 +12,7 @@
 | `denkidai/danbou/` | 解説記事：暖房の電気代比較（表の数字は `tests/danbou.test.mjs` で計算と照合） |
 | `kyuyo/` | 時給・日給・月給・年収の換算（1日の時間・週の日数・賞与の月数に対応。額面のみ） |
 | `rimawari/` | 不動産投資の利回り計算（表面利回り・実質利回り、目標利回りからの価格の逆算） |
+| `pdf/` | PDFの結合・分割（ブラウザ内で完結。`assets/vendor/pdf-lib.esm.min.js` は pdf-lib 1.17.1、MITライセンス） |
 | `password/` | パスワードの強さチェック（総当たりで破られるまでの時間と弱点）と生成（`crypto.getRandomValues`） |
 | `url-check/` | 怪しいURLチェック（本当の行き先、企業名の偽装、そっくり文字、短縮URLなどをルールで判定。通信しない） |
 | `security-check/` | セキュリティ診断（ブラウザが最新か・OSのサポート・HTTPS・WebRTCでのIP漏れを100点満点で採点。通信しない） |
