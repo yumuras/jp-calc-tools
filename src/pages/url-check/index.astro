@@ -1,0 +1,92 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="url-check"
+  title="怪しいURLチェック｜偽SMS・フィッシングのリンクを開く前に確認"
+  description="SMSやメールに届いたリンクを貼るだけで、本当の行き先のドメインや、企業名の偽装・そっくり文字・短縮URLなどフィッシングの特徴をチェックします。リンクは開かず、入力はどこにも送信しません。"
+  name="怪しいURLチェック"
+  category="SecurityApplication"
+  updated="2026-10-28"
+>
+  <Fragment slot="header">
+    <h1>怪しいURLチェック</h1>
+    <p class="lead">SMSやメールのリンクを開く前に、本当の行き先と、偽サイトによくある特徴を確かめます。</p>
+  </Fragment>
+  <form class="card" id="form" autocomplete="off">
+    <label for="text">リンク（またはメッセージの文面ごと）</label>
+    <textarea id="text" rows="4" spellcheck="false" autocapitalize="off" placeholder="例：お荷物のお届けにあがりましたが不在のため持ち帰りました。https://..."></textarea>
+    <p class="hint">リンクは開かずに、この端末の中だけでチェックします。入力はどこにも送信しません。</p>
+  </form>
+
+  <section class="card result" id="result" hidden></section>
+
+  <h2>チェックしていること</h2>
+  <ul>
+    <li><strong>本当の行き先</strong>：「amazon.co.jp.○○.com」のように、企業名を先頭に入れた偽装があります。行き先を決めるのは末尾の「○○.com」の部分です。</li>
+    <li><strong>企業名と公式ドメイン</strong>：宅配便・銀行・カード会社・通販・携帯会社など、なりすましの多い企業は、公式ドメインと照らし合わせます。</li>
+    <li><strong>そっくりな文字</strong>：アルファベットに見えるロシア文字やギリシャ文字、0とo・rnとm のような置きかえを見つけます。</li>
+    <li><strong>その他の特徴</strong>：「@」を使った偽装、数字だけのアドレス（IPアドレス）、暗号化されていない http、短縮URL、詐欺によく使われるドメインの末尾などです。</li>
+  </ul>
+
+  <h2>よくある質問</h2>
+  <h3>「危険な特徴なし」なら安全ですか？</h3>
+  <p>いいえ。このページは、偽サイトによくある特徴を探すだけです。本物そっくりの別のドメインを新しく取られた場合などは、見分けられないことがあります。宅配便や銀行からの連絡は、メッセージのリンクではなく、公式アプリやブックマークから確認するのが一番安全です。</p>
+  <h3>もう開いてしまった・入力してしまったときは？</h3>
+  <p>パスワードを入れた場合はすぐに変更し、同じパスワードを使っているほかのサービスも変更してください。カード番号を入れた場合は、カード会社に連絡して止めてもらいます。困ったときは、警察の相談窓口（#9110）や消費者ホットライン（188）に相談できます。</p>
+  <h3>怪しいメッセージはどうすればいいですか？</h3>
+  <p>開かずに削除して大丈夫です。届いたフィッシングの情報は、フィッシング対策協議会に報告することもできます。</p>
+
+  <p class="note">判定はページ内のルールにもとづく目安で、安全を保証するものではありません。公式ドメインの一覧は代表的なものだけで、すべてを網羅していません。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li><a href="https://www.antiphishing.jp/" rel="noopener">フィッシング対策協議会</a>（フィッシングの手口と報告先）</li>
+    <li><a href="https://www.ipa.go.jp/security/" rel="noopener">IPA 情報処理推進機構「情報セキュリティ」</a></li>
+    <li>各社の公式ドメインは、各社の公式サイトで公開されているものです</li>
+  </ul>
+
+  <script>
+    import { checkUrl } from "../../lib/urlcheck.js";
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const VERDICTS = {
+      danger: ["danger", "危険な特徴があります。開かないでください"],
+      warn: ["warn", "注意が必要な特徴があります"],
+      none: ["ok", "目立った危険な特徴は見つかりませんでした"],
+    };
+    const LEVELS = { danger: "危険", warn: "注意", info: "参考" };
+
+    function render() {
+      const text = $("text").value.trim();
+      if (!text) {
+        $("result").hidden = true;
+        return;
+      }
+      const r = checkUrl(text);
+      if (!r) {
+        $("result").innerHTML = "<p>URLが見つかりませんでした。https:// から始まるリンクや、example.com のようなドメインを含めて貼ってください。</p>";
+        $("result").hidden = false;
+        return;
+      }
+      const [cls, label] = VERDICTS[r.verdict];
+      const domainNote = r.unicodeHost !== r.host ? `<p class="hint">ブラウザ上の表記：${esc(r.host)}</p>` : "";
+      const items = r.findings
+        .map((f) => `<li class="finding ${f.level}"><span class="tag">${LEVELS[f.level]}</span><strong>${esc(f.title)}</strong><br>${esc(f.detail)}</li>`)
+        .join("");
+      const safeNote = r.verdict === "none"
+        ? "<p class=\"hint\">安全の保証ではありません。少しでも不安なら、リンクではなく公式アプリやブックマークから確認してください。</p>"
+        : "";
+      $("result").innerHTML =
+        `<p class="verdict ${cls}">${label}</p>` +
+        `<p>本当の行き先（ドメイン）：<span class="big domain">${esc(r.domain)}</span></p>` +
+        `<p class="hint">ホスト名：${esc(r.unicodeHost)}</p>` + domainNote +
+        (items ? `<ul class="findings">${items}</ul>` : "") + safeNote;
+      $("result").hidden = false;
+    }
+
+    $("form").addEventListener("submit", (e) => e.preventDefault());
+    $("text").addEventListener("input", render);
+  </script>
+</Tool>

@@ -1,0 +1,14 @@
+---
+import Base from "../layouts/Base.astro";
+import { TOOLS } from "../data/tools.js";
+---
+<Base title="ページが見つかりません｜くらしと仕事の計算ツール" noindex>
+  <Fragment slot="header">
+    <h1>ページが見つかりません</h1>
+    <p class="lead">URLが変わったか、入力が間違っているかもしれません。下の一覧から探してください。</p>
+  </Fragment>
+  <ul class="tools">
+    {TOOLS.map((t) => <li><a href={`/${t.slug}/`}>{t.name}</a></li>)}
+  </ul>
+  <p><a href="/">計算ツール一覧（トップ）へ</a></p>
+</Base>

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { addBusinessDays, countBusinessDays, isBusinessDay } from "../assets/eigyobi.js";
+import { addBusinessDays, countBusinessDays, isBusinessDay } from "../src/lib/eigyobi.js";
 
 const ymd = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 

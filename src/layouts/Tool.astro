@@ -1,0 +1,61 @@
+---
+// 計算ツールのページ。構造化データ・最終更新日・「ほかの計算ツール」をまとめて出す。
+import Base from "./Base.astro";
+import { TOOLS } from "../data/tools.js";
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  /** パンくず・構造化データでのツール名 */
+  name: string;
+  /** 画面のパンくずに出す名前（name と違うときだけ） */
+  crumb?: string;
+  category: "UtilitiesApplication" | "SecurityApplication";
+  /** 最終更新日（YYYY-MM-DD） */
+  updated: string;
+}
+
+const { slug, title, description, name, category, updated, crumb = name } = Astro.props;
+const path = `/${slug}/`;
+const url = new URL(path, Astro.site).href;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      name,
+      url,
+      description,
+      applicationCategory: category,
+      operatingSystem: "All",
+      browserRequirements: "JavaScriptが有効なブラウザ",
+      inLanguage: "ja",
+      isAccessibleForFree: true,
+      dateModified: updated,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "JPY" },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "くらしと仕事の計算ツール", item: new URL("/", Astro.site).href },
+        { "@type": "ListItem", position: 2, name, item: url },
+      ],
+    },
+  ],
+};
+const [y, m, d] = updated.split("-").map(Number);
+const others = TOOLS.filter((t) => t.slug !== slug);
+---
+<Base title={title} description={description} path={path} jsonLd={jsonLd} crumb={crumb} privacyNote>
+  <slot name="header" slot="header" />
+  <slot />
+  <p class="lead">最終更新：<time datetime={updated}>{y}年{m}月{d}日</time></p>
+
+  <section class="related">
+    <h2>ほかの計算ツール</h2>
+    <ul>
+      {others.map((t) => <li><a href={`/${t.slug}/`}>{t.name}</a>：{t.summary}</li>)}
+    </ul>
+  </section>
+</Base>

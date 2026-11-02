@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { parseBrowser, expectedVersion, parseOs, classifyCandidates, evaluate, score, grade } from "../assets/seccheck.js";
+import { parseBrowser, expectedVersion, parseOs, classifyCandidates, evaluate, score, grade } from "../src/lib/seccheck.js";
 
 const UA = {
   chrome: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",

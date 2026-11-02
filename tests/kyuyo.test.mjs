@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { convertPay, formatYen, monthlyHours } from "../assets/kyuyo.js";
+import { convertPay, formatYen, monthlyHours } from "../src/lib/kyuyo.js";
 
 const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-6, `${a} != ${b}`);
 

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { addMonthsElapsed, classifyWorkType, grantSchedule, parseDate, statusOn } from "../assets/yukyu.js";
+import { addMonthsElapsed, classifyWorkType, grantSchedule, parseDate, statusOn } from "../src/lib/yukyu.js";
 
 const ymd = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 
