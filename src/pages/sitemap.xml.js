@@ -2,7 +2,11 @@
 import { TOOLS } from "../data/tools.js";
 
 // 解説記事はツール一覧に入れないので、ここで親のツールの直後に足す。
-const ARTICLES = { denkidai: ["/denkidai/danbou/"] };
+const ARTICLES = {
+  yukyu: ["/yukyu/hayami/"],
+  denkidai: ["/denkidai/danbou/", "/denkidai/kaden/"],
+  kyuyo: ["/kyuyo/jikyu-gesshu/"],
+};
 
 export function GET({ site }) {
   const toolPaths = TOOLS.flatMap((t) => [`/${t.slug}/`, ...(ARTICLES[t.slug] ?? [])]);

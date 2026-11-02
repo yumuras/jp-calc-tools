@@ -1,0 +1,58 @@
+---
+// 解説記事：家電ごとの電気代一覧。表は電気代ツールと同じ PRESETS と applianceCost から作る。
+import Article from "../../../layouts/Article.astro";
+import { DEFAULT_PRICE, PRESETS, applianceCost, formatYen } from "../../../lib/denkidai.js";
+
+const minutes = (h: number) => (h >= 1 ? `${h}時間` : `${Math.round(h * 60)}分`);
+const rows = PRESETS.map((p) => ({ ...p, cost: applianceCost({ watts: p.watts, hoursPerDay: p.hours, daysPerMonth: 30 }) }));
+const fridge = rows.find((r) => r.name.startsWith("冷蔵庫"))!;
+const dryer = rows.find((r) => r.name === "ドライヤー")!;
+---
+<Article
+  parent="denkidai"
+  slug="kaden"
+  title="家電ごとの電気代一覧｜冷蔵庫・テレビ・ドライヤーは1か月いくら？"
+  description="冷蔵庫・テレビ・電子レンジ・ドライヤーなど、よく使う家電14種類の電気代を、1時間・1日・1か月・1年で一覧にしました。単価は目安単価の31円/kWhです。"
+  name="家電ごとの電気代一覧"
+  published="2026-11-02"
+  updated="2026-11-02"
+>
+  <Fragment slot="header">
+    <h1>家電ごとの電気代一覧</h1>
+    <p class="lead">24時間動いている冷蔵庫でも1か月約{formatYen(fridge.cost.perMonth)}、毎日{minutes(dryer.hours)}使うドライヤーは1か月約{formatYen(dryer.cost.perMonth)}です。14種類の家電の電気代を、ふだんの使い方で計算しました。</p>
+  </Fragment>
+
+  <h2>1時間・1か月・1年の電気代</h2>
+  <p>「1日の使用時間」は目安です。1か月は30日、電気料金の単価は目安単価の{DEFAULT_PRICE}円/kWhで計算しています。</p>
+  <div class="scroll">
+    <table id="kaden" class="compact">
+      <thead><tr><th>家電（消費電力）</th><th>1日の使用</th><th>1時間</th><th>1か月</th><th>1年</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr data-watts={r.watts} data-hours={r.hours}><td class="wrap">{r.name}<br><small>{r.watts.toLocaleString("ja-JP")}W</small></td><td>{minutes(r.hours)}</td><td>{formatYen(r.cost.perHour)}</td><td>{formatYen(r.cost.perMonth)}</td><td>{formatYen(r.cost.perYear)}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">消費電力は、よくある機種の使っている間の平均的な値です。お使いの機種の値は本体のラベルや取扱説明書で確認できます。</p>
+
+  <h2>計算のしかた</h2>
+  <p>電気代は「消費電力（kW）× 使った時間（h）× 単価（円/kWh）」です。1,200Wのドライヤーを10分（約0.17時間）使うと、1.2kW × 0.17時間 × {DEFAULT_PRICE}円 ＝ 約6円です。</p>
+  <p>消費電力が大きくても、使う時間が短い家電（電子レンジ・電気ケトル・ドライヤー）は、1か月で見るとそれほど高くなりません。反対に、消費電力が小さくても長い時間使う家電（冷蔵庫・照明）は、積み重なって効いてきます。</p>
+
+  <h2>よくある質問</h2>
+  <h3>表と自分の家の電気代が合いません</h3>
+  <p>単価は電力会社や料金プラン、燃料費調整額で変わります。検針票の「電力量料金 ÷ 使用量」で自分の単価を出して<a href="/denkidai/">電気代計算</a>に入れると、実際に近い金額になります。</p>
+  <h3>エアコンの電気代は季節で変わりますか？</h3>
+  <p>変わります。外と部屋の温度差が大きい真夏・真冬ほど、消費電力が上がります。表の値は平均的な目安です。暖房器具どうしの比較は<a href="/denkidai/danbou/">暖房の電気代比較</a>にまとめています。</p>
+
+  <p class="note">家電の消費電力の目安は、機種・設定・季節によって大きく変わります。正確に知りたい場合は、お使いの家電の消費電力で計算してください。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li><a href="https://www.eftc.or.jp/" rel="noopener">全国家庭電気製品公正取引協議会</a>が定める電力料金の目安単価（31円/kWh・税込）</li>
+  </ul>
+
+  <li slot="related"><a href="/denkidai/">家電の電気代計算</a>：自分の家電の消費電力と時間で計算する</li>
+  <li slot="related"><a href="/denkidai/danbou/">暖房の電気代を比較</a>：エアコン・電気ストーブ・こたつなどは1時間・1か月いくら？</li>
+</Article>

@@ -48,3 +48,19 @@ export function convertPay(amount, unit, { hoursPerDay = 8, daysPerWeek = 5, bon
 export function formatYen(yen) {
   return `${Math.round(yen).toLocaleString("ja-JP")}円`;
 }
+
+/**
+ * 時給の早見表。時給ごとに、週の日数別の月収と、週5日の年収を返す（賞与なし・額面）。
+ * 例: 時給1,200円・1日8時間・週5日 → 月208,000円
+ */
+export function hourlyTable(hourlyList, { hoursPerDay = 8, daysList = [3, 4, 5] } = {}) {
+  return hourlyList.map((hourly) => ({
+    hourly,
+    monthly: Object.fromEntries(
+      daysList.map((d) => [d, convertPay(hourly, "hourly", { hoursPerDay, daysPerWeek: d }).monthly]),
+    ),
+    annual: Object.fromEntries(
+      daysList.map((d) => [d, convertPay(hourly, "hourly", { hoursPerDay, daysPerWeek: d }).annual]),
+    ),
+  }));
+}

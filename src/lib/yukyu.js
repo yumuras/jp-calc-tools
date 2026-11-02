@@ -92,3 +92,17 @@ export function parseDate(s) {
 export function formatDate(d) {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
+
+/** 付与日数が初めて10日以上になる勤続年数（年5日の取得義務が始まる時期）。ならなければ null。 */
+export function fiveDayDutyStartYears(workType) {
+  const table = GRANT_TABLE[workType];
+  if (!table) throw new Error(`unknown work type: ${workType}`);
+  const i = table.findIndex((d) => d >= 10);
+  return i === -1 ? null : 0.5 + i;
+}
+
+/** 勤続年数の表示（0.5 → "6か月"、3.5 → "3年6か月"）。 */
+export function formatYears(years) {
+  const y = Math.floor(years);
+  return y === 0 ? "6か月" : `${y}年6か月`;
+}
