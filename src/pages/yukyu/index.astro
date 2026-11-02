@@ -1,0 +1,143 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="yukyu"
+  title="パート・アルバイトの有給は何日？法律上の最低日数チェック"
+  description="週の勤務日数と時間、入社日を入れるだけで、パート・アルバイトでも法律上もらえる有給休暇の最低日数がわかります。週1日からの比例付与に対応。会社の付与が少なすぎないかの確認に。"
+  name="パート・アルバイトの有給日数チェック"
+  crumb="パート・アルバイトの有給は何日？"
+  category="UtilitiesApplication"
+  updated="2026-10-28"
+>
+  <Fragment slot="header">
+    <h1>パート・アルバイトの有給は何日？</h1>
+    <p class="lead">週の勤務日数と入社日から、法律上もらえる有給休暇の最低日数がわかります。</p>
+  </Fragment>
+  <form class="card" id="form">
+    <label for="days">週に何日働いているか</label>
+    <select id="days">
+      <option value="1">週1日</option>
+      <option value="2">週2日</option>
+      <option value="3" selected>週3日</option>
+      <option value="4">週4日</option>
+      <option value="5">週5日以上</option>
+    </select>
+
+    <label for="hours">週の労働時間（だいたい）</label>
+    <input type="number" id="hours" min="0" max="80" step="0.5" value="15" inputmode="decimal">
+
+    <label for="hire">入社日（働き始めた日）</label>
+    <input type="date" id="hire" required>
+
+    <label for="asof">いつ時点で見るか</label>
+    <input type="date" id="asof" required>
+  </form>
+
+  <section class="card result" id="result" hidden>
+    <div id="summary"></div>
+  </section>
+
+  <section id="schedule-section" hidden>
+    <h2>あなたの付与スケジュール（法律上の最低ライン）</h2>
+    <table>
+      <thead><tr><th>付与日</th><th>勤続</th><th>最低日数</th></tr></thead>
+      <tbody id="schedule"></tbody>
+    </table>
+  </section>
+
+  <h2>週の日数ごとの最低付与日数</h2>
+  <p>週30時間未満で働く人の有給は、週の勤務日数に応じて決まります（比例付与）。週30時間以上なら、週の日数にかかわらず「週5日〜」の行と同じ日数です。</p>
+  <p class="lead">単位：日。列は勤続年数です。</p>
+  <div class="scroll">
+    <table id="table" class="compact">
+      <thead>
+        <tr><th>週の日数</th><th>0.5年</th><th>1.5年</th><th>2.5年</th><th>3.5年</th><th>4.5年</th><th>5.5年</th><th>6.5年〜</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <h2>有給がもらえる条件</h2>
+  <p>労働基準法39条により、働き始めてから6か月続けて勤務し、決められた出勤日の8割以上出勤していれば、パート・アルバイトでも有給休暇がもらえます。その後は1年ごとに付与されます。</p>
+  <p>使わなかった有給は2年で時効になるので、翌年まで繰り越せます。年10日以上もらえる人には、1年以内に5日を取得させることが会社に義務づけられています。</p>
+
+  <h2>よくある質問</h2>
+  <h3>会社から「パートに有給はない」と言われました</h3>
+  <p>条件を満たしていれば、パート・アルバイトにも有給はあります。会社の付与がこのページの日数より少ない場合は、就業規則を確認し、会社や最寄りの労働基準監督署に相談してください。</p>
+  <h3>会社の付与日や日数がこの計算と違います</h3>
+  <p>このページは法律上の最低ラインです。入社日にすぐ付与する、全員の付与日を4月1日にそろえるなど、法律より有利な扱いをしている会社もあります。その場合は会社のルールが優先されます。</p>
+
+  <p class="note">この計算は法律上の最低基準にもとづく目安です。出勤率が8割未満の年は付与されないなど、個別の事情は反映していません。</p>
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+      <li><a href="https://laws.e-gov.go.jp/law/322AC0000000049" rel="noopener">労働基準法</a>（e-Gov法令検索）第39条（年次有給休暇）</li>
+      <li><a href="https://laws.e-gov.go.jp/law/322M40000100023" rel="noopener">労働基準法施行規則</a>（e-Gov法令検索）第24条の3（比例付与の日数）</li>
+  </ul>
+
+  <script>
+    import { GRANT_TABLE, classifyWorkType, grantSchedule, statusOn, parseDate, formatDate } from "../../lib/yukyu.js";
+
+    const $ = (id) => document.getElementById(id);
+    const toInput = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    $("asof").value = toInput(new Date());
+
+    const tableRows = [["w1", "週1日"], ["w2", "週2日"], ["w3", "週3日"], ["w4", "週4日"], ["full", "週5日〜"]];
+    $("table").tBodies[0].innerHTML = tableRows
+      .map(([key, label]) => `<tr><td>${label}</td>${GRANT_TABLE[key].map((d) => `<td>${d}</td>`).join("")}</tr>`)
+      .join("");
+
+    function render() {
+      const hire = parseDate($("hire").value);
+      const asOf = parseDate($("asof").value);
+      const type = classifyWorkType(Number($("days").value), Number($("hours").value) || 0);
+      if (!hire || !asOf || !type) {
+        $("result").hidden = true;
+        $("schedule-section").hidden = true;
+        return;
+      }
+      const s = statusOn(hire, type, asOf);
+
+      const lines = [];
+      lines.push(type === "full"
+        ? `<p>あなたは<strong>正社員と同じ日数</strong>の対象です（週5日以上、または週30時間以上）。</p>`
+        : `<p>あなたは<strong>週${type.slice(1)}日の比例付与</strong>の対象です。</p>`);
+      if (s.lastGrant) {
+        lines.push(`<p>今もらえているはずの日数：<span class="big">${s.lastGrant.days}日以上</span></p>`);
+        lines.push(`<p>（${formatDate(s.lastGrant.date)}付与、勤続${s.lastGrant.yearsOfService}年）</p>`);
+        lines.push(`<p>前年分の繰り越しを含めた最大：<strong>${s.maxBalance}日</strong>（1日も使っていない場合）</p>`);
+      } else {
+        lines.push(`<p>まだ有給は付与されていません（働き始めて6か月後から）。</p>`);
+      }
+      if (s.nextGrant) {
+        lines.push(`<p>次の付与：${formatDate(s.nextGrant.date)}に<strong>${s.nextGrant.days}日以上</strong></p>`);
+      }
+      if (s.fiveDayDuty) {
+        lines.push(`<p>年10日以上もらえるので、会社は1年以内に5日取得させる義務があります。</p>`);
+      }
+      $("summary").innerHTML = lines.join("");
+      $("result").hidden = false;
+
+      const lastDate = s.lastGrant?.date.getTime();
+      $("schedule").innerHTML = grantSchedule(hire, type, 8)
+        .map((r) => `<tr class="${r.date.getTime() === lastDate ? "current" : ""}"><td>${formatDate(r.date)}</td><td>${r.yearsOfService}年</td><td>${r.days}日</td></tr>`)
+        .join("");
+      $("schedule-section").hidden = false;
+    }
+
+    // PCのブラウザでは右端のアイコンを押さないとカレンダーが開かないので、欄のどこを押しても開くようにする
+    for (const input of document.querySelectorAll('input[type="date"]')) {
+      input.addEventListener("click", () => {
+        try {
+          input.showPicker?.();
+        } catch {
+          // showPicker が使えない環境では通常の入力のまま
+        }
+      });
+    }
+
+    $("form").addEventListener("input", render);
+    render();
+  </script>
+</Tool>

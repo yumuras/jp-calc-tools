@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { holidaysOf, holidayName } from "../assets/holidays.js";
+import { holidaysOf, holidayName } from "../src/lib/holidays.js";
 
 test("2026年の祝日・休日（内閣府の一覧と同じ18日）", () => {
   assert.deepEqual([...holidaysOf(2026).keys()], [

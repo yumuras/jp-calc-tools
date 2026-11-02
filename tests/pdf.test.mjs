@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { PDFDocument } from "../assets/vendor/pdf-lib.esm.min.js";
-import { extractPages, mergePdfs, pageCountOf, parsePageRanges, splitEachPage } from "../assets/pdf.js";
+import { PDFDocument } from "../src/lib/vendor/pdf-lib.esm.min.js";
+import { extractPages, mergePdfs, pageCountOf, parsePageRanges, splitEachPage } from "../src/lib/pdf.js";
 
 // 幅でページを見分けられるテスト用PDF（幅 = 100 + ページ番号）
 async function makePdf(count, offset = 0) {

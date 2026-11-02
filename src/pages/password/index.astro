@@ -1,0 +1,121 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="password"
+  title="パスワードの強さチェック｜破られるまで何年？安全なパスワード生成も"
+  description="パスワードを入れると、総当たり攻撃で破られるまでの時間と弱点がわかります。長さや記号を選んで、安全なパスワードを作ることもできます。入力はどこにも送信しません。"
+  name="パスワードの強さチェック・生成"
+  crumb="パスワードの強さチェック"
+  category="SecurityApplication"
+  updated="2026-10-28"
+>
+  <Fragment slot="header">
+    <h1>パスワードの強さチェック</h1>
+    <p class="lead">総当たりで破られるまでの時間と、パスワードの弱点がわかります。安全なパスワードも作れます。</p>
+  </Fragment>
+  <form class="card" id="check-form" autocomplete="off">
+    <label for="pw">調べるパスワード</label>
+    <input type="text" id="pw" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="例：sakura2024">
+    <p class="hint">入力はこの端末の中だけで計算し、どこにも送信しません。心配なら、本物と同じ形（文字数・種類）の別の文字列で試してください。</p>
+  </form>
+
+  <section class="card result" id="check-result" hidden></section>
+
+  <h2>安全なパスワードを作る</h2>
+  <form class="card" id="gen-form">
+    <label for="len">長さ：<span id="len-value">16</span>文字</label>
+    <input type="range" id="len" min="8" max="64" value="16">
+    <label class="check"><input type="checkbox" id="lower" checked> 小文字（a〜z）</label>
+    <label class="check"><input type="checkbox" id="upper" checked> 大文字（A〜Z）</label>
+    <label class="check"><input type="checkbox" id="digit" checked> 数字（0〜9）</label>
+    <label class="check"><input type="checkbox" id="symbol" checked> 記号（!#$% など）</label>
+    <label class="check"><input type="checkbox" id="ambiguous" checked> 紛らわしい文字（0とO、1とlとI など）を使わない</label>
+    <output class="generated" id="generated" aria-live="polite"></output>
+    <div class="row">
+      <button type="button" id="regen">別のを作る</button>
+      <button type="button" id="copy">コピー</button>
+    </div>
+    <p class="hint" id="gen-info"></p>
+  </form>
+
+  <h2>計算のしかた</h2>
+  <p>パスワードに使われている文字の種類（小文字26・大文字26・数字10・記号32）を足し合わせ、「種類の数 ^ 文字数」を、ありうる組み合わせの数とします。総当たりでは平均して半分を試したところで当たるので、その回数を1秒あたりの試行回数で割って時間を出しています。</p>
+  <p>試行回数は2通りで計算しています。サービスから流出したパスワードのデータ（ハッシュ）を高性能なPCで解析する場合は1秒に1兆回、ログイン画面から1回ずつ試す場合は1秒に10回としています。</p>
+  <p>ただし、よく使われるパスワードや単語・誕生日の組み合わせは、総当たりより先に「辞書」で試されます。そうした特徴が見つかった場合は、評価を下げて警告を出しています。</p>
+
+  <h2>よくある質問</h2>
+  <h3>何文字あれば安全ですか？</h3>
+  <p>大文字・小文字・数字・記号をまぜた、ランダムな12文字以上が目安です。文字の種類を増やすより、長さを増やすほうが効果があります。このページで作れる16文字のパスワードなら、流出したデータを解析されても、破られるまでに途方もない時間がかかります。</p>
+  <h3>強いパスワードなら、使い回しても大丈夫？</h3>
+  <p>いいえ。どこか1つのサービスから流出すると、同じパスワードを使っているほかのサービスにもログインされてしまいます。サービスごとに別のパスワードにして、パスワード管理アプリやブラウザの保存機能で管理するのがおすすめです。</p>
+  <h3>二段階認証は必要ですか？</h3>
+  <p>使えるサービスでは、設定をおすすめします。パスワードが知られても、スマホに届く確認コードなどがなければログインできなくなります。</p>
+
+  <p class="note">表示される時間は、計算上の目安です。実際の攻撃の速さは、サービスがパスワードをどう保存しているかや、攻撃者の設備によって大きく変わります。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li>総当たりの時間：組み合わせの数 ÷ 2 ÷ 1秒あたりの試行回数（試行回数は上記の想定）</li>
+    <li>生成：ブラウザの暗号用の乱数（Web Crypto API の <code>crypto.getRandomValues</code>）を、偏りが出ない方法で使っています</li>
+  </ul>
+
+  <script>
+    import { checkPassword, crackSeconds, formatDuration, generatePassword, ATTACK_SPEEDS, LEVEL_LABELS } from "../../lib/password.js";
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    function renderCheck() {
+      const pw = $("pw").value;
+      if (!pw) {
+        $("check-result").hidden = true;
+        return;
+      }
+      const r = checkPassword(pw);
+      const times = Object.values(ATTACK_SPEEDS)
+        .map((s) => `<div><dt>${esc(s.label)}</dt><dd>${formatDuration(crackSeconds(r.bits, s.perSecond))}</dd></div>`)
+        .join("");
+      const warnings = r.warnings.length
+        ? `<ul class="warnings">${r.warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>`
+        : "";
+      $("check-result").innerHTML =
+        `<p>強さ：<span class="big level-${r.level}">${LEVEL_LABELS[r.level]}</span></p>` +
+        `<p class="hint">${r.length}文字・文字の種類${r.charsetSize}通り（約${Math.round(r.bits)}ビット）</p>` +
+        `<p>総当たりで破られるまでの時間</p><dl class="times">${times}</dl>` + warnings;
+      $("check-result").hidden = false;
+    }
+
+    function renderGenerated() {
+      $("len-value").textContent = $("len").value;
+      const sets = { lower: $("lower").checked, upper: $("upper").checked, digit: $("digit").checked, symbol: $("symbol").checked };
+      try {
+        const pw = generatePassword(Number($("len").value), sets, { excludeAmbiguous: $("ambiguous").checked });
+        $("generated").textContent = pw;
+        const r = checkPassword(pw);
+        $("gen-info").textContent = `流出データを解析されても、破られるまで${formatDuration(crackSeconds(r.bits, ATTACK_SPEEDS.offline.perSecond))}（約${Math.round(r.bits)}ビット）`;
+        $("copy").disabled = false;
+      } catch (err) {
+        $("generated").textContent = "";
+        $("gen-info").textContent = err.message;
+        $("copy").disabled = true;
+      }
+    }
+
+    $("copy").addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText($("generated").textContent);
+        $("copy").textContent = "コピーしました";
+        setTimeout(() => ($("copy").textContent = "コピー"), 1500);
+      } catch {
+        $("copy").textContent = "長押しでコピーしてください";
+      }
+    });
+
+    $("check-form").addEventListener("submit", (e) => e.preventDefault());
+    $("pw").addEventListener("input", renderCheck);
+    $("gen-form").addEventListener("input", renderGenerated);
+    $("regen").addEventListener("click", renderGenerated);
+    renderGenerated();
+  </script>
+</Tool>

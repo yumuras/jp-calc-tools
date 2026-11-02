@@ -2,10 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { DEFAULT_PRICE, applianceCost } from "../assets/denkidai.js";
+import { DEFAULT_PRICE, applianceCost } from "../src/lib/denkidai.js";
 
 // 記事の比較表（1日8時間・30日）が電気代ツールと同じ計算になっているか
-const html = readFileSync(new URL("../denkidai/danbou/index.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../src/pages/denkidai/danbou/index.astro", import.meta.url), "utf8");
 const rows = [...html.matchAll(/<tr data-watts="(\d+)"><td>[^<]+<\/td><td>([\d,]+)W<\/td><td>([\d.]+)円<\/td><td>([\d,]+)円<\/td>/g)];
 
 test("比較表に7行ある", () => {

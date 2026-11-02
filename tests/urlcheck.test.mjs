@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { checkUrl, extractUrl, registrableDomain, toUnicodeHost } from "../assets/urlcheck.js";
+import { checkUrl, extractUrl, registrableDomain, toUnicodeHost } from "../src/lib/urlcheck.js";
 
 const titles = (r) => r.findings.map((f) => `${f.level}:${f.title}`);
 
