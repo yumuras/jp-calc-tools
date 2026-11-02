@@ -1,0 +1,95 @@
+---
+import Tool from "../../layouts/Tool.astro";
+---
+<Tool
+  slug="rimawari"
+  title="不動産投資の利回り計算｜表面利回り・実質利回りと買える価格"
+  description="物件価格と家賃から表面利回りを、経費・空室率・購入時の諸費用を入れると実質利回りを計算します。目標の利回りから買える価格の上限も逆算できます。"
+  name="不動産投資の利回り計算"
+  category="UtilitiesApplication"
+  updated="2026-10-29"
+>
+  <Fragment slot="header">
+    <h1>不動産投資の利回り計算</h1>
+    <p class="lead">物件価格と家賃から表面利回りを、経費や空室も入れると実質利回りがわかります。</p>
+  </Fragment>
+  <form class="card" id="form">
+    <div class="row">
+      <div><label for="price">物件価格（万円）</label><input type="number" id="price" min="0" step="10" value="2000" inputmode="decimal"></div>
+      <div><label for="costs">購入時の諸費用（万円）</label><input type="number" id="costs" min="0" step="1" value="150" inputmode="decimal"></div>
+    </div>
+    <div class="row">
+      <div><label for="rent">家賃（円／月）</label><input type="number" id="rent" min="0" step="1000" value="100000" inputmode="numeric"></div>
+      <div><label for="expenses">年間の経費（円）</label><input type="number" id="expenses" min="0" step="1000" value="300000" inputmode="numeric"></div>
+    </div>
+    <div class="row">
+      <div><label for="vacancy">空室率（%）</label><input type="number" id="vacancy" min="0" max="100" step="1" value="5" inputmode="decimal"></div>
+    </div>
+    <p class="hint">諸費用は仲介手数料・登記費用・不動産取得税など。年間の経費は管理費・修繕積立金・管理委託料・固定資産税などの合計です。</p>
+  </form>
+
+  <section class="card result" id="result"></section>
+
+  <form class="card" id="reverse">
+    <h2>目標の利回りから、買える価格を逆算</h2>
+    <div class="row">
+      <div><label for="target">目標の表面利回り（%）</label><input type="number" id="target" min="0" step="0.1" value="7" inputmode="decimal"></div>
+    </div>
+    <p id="reverse-result"></p>
+  </form>
+
+  <h2>計算のしかた</h2>
+  <p>表面利回りは「年間家賃 ÷ 物件価格」です。家賃10万円（年120万円）で2,000万円の物件なら、表面利回りは6%です。</p>
+  <p>実質利回りは「（年間家賃 ×（1 − 空室率）− 年間の経費）÷（物件価格 + 購入時の諸費用）」で計算しています。上の例で、空室率5%・経費30万円・諸費用150万円なら、（114万円 − 30万円）÷ 2,150万円 ＝ 約3.91%です。</p>
+  <p>逆算は「年間家賃 ÷ 目標の表面利回り」です。家賃10万円で表面利回り7%を目指すなら、上限は約1,714万円になります。</p>
+
+  <h2>よくある質問</h2>
+  <h3>実質利回りの「経費」には何を入れればいいですか？</h3>
+  <p>毎年かかる費用を入れます。区分マンションなら管理費・修繕積立金・賃貸管理の委託料・固定資産税と都市計画税・火災保険料が主なものです。ローンの返済額や所得税は含めません。</p>
+  <h3>表面利回りと実質利回り、どちらを見ればいいですか？</h3>
+  <p>広告に載っているのはたいてい表面利回りです。実際の手残りに近いのは実質利回りなので、経費と空室を入れて両方を見比べると、表面利回りだけでは見えない差がわかります。</p>
+  <h3>ローンを使う場合の手残りはわかりますか？</h3>
+  <p>このページではローンの返済は計算していません。ここで出る「年間の手残り家賃」から、年間のローン返済額を引いたものが、税金を払う前の手残りの目安です。</p>
+
+  <p class="note">このページは入力した数字から利回りを計算するだけで、特定の物件の価格が妥当かどうかの評価や、購入をすすめるものではありません。実際の収支は、修繕・入居者の入れ替え・金利・税金などで変わります。</p>
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+      <li>計算はすべて四則演算です（法令や毎年変わる数字は使っていません）。</li>
+  </ul>
+
+  <script>
+    import { yields, maxPriceForYield, formatYen, formatPercent } from "../../lib/rimawari.js";
+
+    const $ = (id) => document.getElementById(id);
+    const man = (id) => (Number($(id).value) || 0) * 10000;
+
+    function render() {
+      const r = yields({
+        price: man("price"),
+        purchaseCosts: man("costs"),
+        monthlyRent: $("rent").value,
+        annualExpenses: $("expenses").value,
+        vacancyRate: $("vacancy").value,
+      });
+      if (!r) {
+        $("result").innerHTML = "<p>物件価格を入れてください。</p>";
+      } else {
+        $("result").innerHTML =
+          `<dl class="pay">` +
+          `<div><dt>表面利回り</dt><dd>${formatPercent(r.grossYield)}</dd></div>` +
+          `<div><dt>実質利回り</dt><dd>${formatPercent(r.netYield)}</dd></div>` +
+          `<div><dt>年間家賃</dt><dd>${formatYen(r.annualRent)}</dd></div>` +
+          `<div><dt>年間の手残り家賃</dt><dd>${formatYen(r.netIncome)}</dd></div>` +
+          `</dl>`;
+      }
+      const max = maxPriceForYield($("rent").value, $("target").value);
+      $("reverse-result").innerHTML = max === null
+        ? "目標の利回りを入れてください。"
+        : `家賃${Number($("rent").value || 0).toLocaleString("ja-JP")}円／月なら、物件価格の上限は <span class="big">${formatYen(max)}</span>`;
+    }
+
+    $("form").addEventListener("input", render);
+    $("reverse").addEventListener("input", render);
+    render();
+  </script>
+</Tool>

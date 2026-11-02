@@ -546,3 +546,16 @@ body, .card, .tool-card, .site-bar, input, select, textarea { transition-propert
 .info-grid div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; }
 .info-grid dt { color: var(--muted); font-size: 0.78rem; }
 .info-grid dd { margin: 0; font-weight: 700; word-break: break-word; }
+
+/* ---------- PDFの結合・分割 ---------- */
+.file-list { padding-left: 1.4em; margin: 12px 0 0; }
+.file-list li { display: flex; align-items: center; gap: 6px; padding: 6px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.file-list li > span { flex: 1 1 auto; }
+.file-list button.remove { padding: 4px 10px; font-size: 0.8rem; }
+ol.file-list li { display: list-item; }
+ol.file-list li > span { display: inline; margin-right: 6px; }
+.split-mode { border: 0; padding: 0; margin: 16px 0 8px; }
+.split-mode legend { font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.split-mode label { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 4px 0; }
+.split-mode input { width: auto; }
+.pdf-status { font-size: 0.9rem; margin: 10px 0 0; min-height: 1.2em; }

@@ -55,6 +55,7 @@ const others = TOOLS.filter((t) => t.slug !== slug);
   <section class="related">
     <h2>ほかの計算ツール</h2>
     <ul>
+      <slot name="related" />
       {others.map((t) => <li><a href={`/${t.slug}/`}>{t.name}</a>：{t.summary}</li>)}
     </ul>
   </section>

@@ -36,6 +36,22 @@ export const TOOLS = [
     icon: `<svg viewBox="0 0 24 24"><path d="M6 3.5l6 7.5 6-7.5M12 11v9.5M7.5 13.5h9M7.5 17h9"/></svg>`,
   },
   {
+    slug: "rimawari",
+    name: "不動産投資の利回り計算",
+    desc: "物件価格と家賃から表面利回り・実質利回りを計算。目標の利回りから買える価格も逆算できます。",
+    summary: "表面利回り・実質利回りと、目標利回りから買える価格",
+    when: "投資用マンションの広告の利回りを確かめたいとき",
+    icon: `<svg viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>`,
+  },
+  {
+    slug: "pdf",
+    name: "PDFの結合・分割",
+    desc: "複数のPDFを1つにまとめたり、必要なページだけ抜き出したり。ファイルは送信せず、ブラウザの中だけで処理します。",
+    summary: "PDFの結合とページの抜き出し（ファイルは送信しない）",
+    when: "スキャンした書類を1つのPDFにまとめたいとき",
+    icon: `<svg viewBox="0 0 24 24"><path d="M6 2.5h8l4.5 4.5v14.5h-12.5z"/><path d="M14 2.5V7h4.5"/><path d="M9 13h6M9 16.5h6"/></svg>`,
+  },
+  {
     slug: "password",
     name: "パスワードの強さチェック・生成",
     desc: "総当たりで破られるまでの時間がわかります。安全なパスワードも作れます。",
@@ -64,6 +80,8 @@ export const TOOLS = [
 export const CATEGORIES = [
   { name: "仕事・お金", tools: ["yukyu", "kyuyo", "eigyobi"] },
   { name: "くらし", tools: ["denkidai"] },
+  { name: "不動産", tools: ["rimawari"] },
+  { name: "PDF", tools: ["pdf"] },
   { name: "セキュリティ", tools: ["security-check", "url-check", "password"] },
 ];
 
