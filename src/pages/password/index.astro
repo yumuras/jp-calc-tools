@@ -1,19 +1,103 @@
 ---
 import Tool from "../../layouts/Tool.astro";
+import { CHARSETS } from "../../lib/password.js";
+
+const FAQ = [
+  {
+    q: "作ったパスワードは、どこかに保存・送信されますか？",
+    a: "いいえ。パスワードはお使いのスマホやパソコンのブラウザの中で作っていて、運営者を含むどこにも送信も保存もしていません。ページを閉じると消えるので、使うパスワードはすぐにコピーして保存してください。",
+  },
+  {
+    q: "何文字あれば安全ですか？",
+    a: "大文字・小文字・数字・記号をまぜたランダムな文字列なら、12文字以上が目安です。大事なアカウントには16文字以上をおすすめします。文字の種類を増やすより、長さを増やすほうが効果があります。",
+  },
+  {
+    q: "記号なしのパスワードでも安全ですか？",
+    a: "長さを足せば安全にできます。英字（大文字・小文字）と数字だけでも、ランダムな16文字なら、記号ありの14文字とほぼ同じ強さです。記号が使えないサービスでは、長めに作ってください。",
+  },
+  {
+    q: "強いパスワードなら、使い回しても大丈夫？",
+    a: "いいえ。どこか1つのサービスから流出すると、同じパスワードを使っているほかのサービスにもログインされてしまいます。サービスごとに別のパスワードを作り、パスワード管理アプリやブラウザの保存機能で管理してください。",
+  },
+  {
+    q: "暗証番号（PIN）もここで作れますか？",
+    a: "作れます。「数字だけ（暗証番号）」を選ぶと、数字だけの4〜8桁を作れます。誕生日や電話番号、0000・1234のような並びを避けたいときに使ってください。",
+  },
+  {
+    q: "二段階認証は必要ですか？",
+    a: "使えるサービスでは、設定をおすすめします。パスワードが知られても、スマホに届く確認コードなどがなければログインできなくなります。",
+  },
+];
 ---
 <Tool
   slug="password"
-  title="パスワードの強さチェック｜破られるまで何年？安全なパスワード生成も"
-  description="パスワードを入れると、総当たり攻撃で破られるまでの時間と弱点がわかります。長さや記号を選んで、安全なパスワードを作ることもできます。入力はどこにも送信しません。"
-  name="パスワードの強さチェック・生成"
-  crumb="パスワードの強さチェック"
+  title="パスワード生成ツール｜ランダムで強いパスワードを無料で自動作成"
+  description="安全なパスワードをワンタップで自動生成。長さ・記号あり／なし・数字だけ（暗証番号）・使える記号の指定に対応し、一度に最大20個作れます。強さチェック付き。作ったパスワードはどこにも送信しません。"
+  name="パスワード生成・強さチェック"
+  crumb="パスワード生成"
   category="SecurityApplication"
-  updated="2026-10-28"
+  updated="2026-11-02"
+  faq={FAQ}
 >
   <Fragment slot="header">
-    <h1>パスワードの強さチェック</h1>
-    <p class="lead">総当たりで破られるまでの時間と、パスワードの弱点がわかります。安全なパスワードも作れます。</p>
+    <h1>パスワード生成ツール</h1>
+    <p class="lead">ランダムで強いパスワードを、その場で自動で作ります。記号あり・なし、数字だけの暗証番号にも対応。作ったパスワードはどこにも送信しません。</p>
   </Fragment>
+
+  <form class="card" id="gen-form" autocomplete="off">
+    <fieldset class="presets">
+      <legend>よく使う形</legend>
+      <label><input type="radio" name="preset" value="standard" checked><span>おまかせ<small>16文字・記号あり</small></span></label>
+      <label><input type="radio" name="preset" value="nosymbol"><span>記号なし<small>16文字・英数字</small></span></label>
+      <label><input type="radio" name="preset" value="pin"><span>数字だけ<small>暗証番号6桁</small></span></label>
+      <label><input type="radio" name="preset" value="long"><span>とても強い<small>32文字・記号あり</small></span></label>
+    </fieldset>
+
+    <output class="generated" id="generated" aria-live="polite"></output>
+    <div class="row gen-actions">
+      <button type="button" id="regen">別のを作る</button>
+      <button type="button" id="copy">コピー</button>
+    </div>
+    <p class="hint" id="gen-info"></p>
+
+    <details class="gen-options">
+      <summary>長さや文字の種類を変える</summary>
+      <label for="len">長さ：<span id="len-value">16</span>文字</label>
+      <input type="range" id="len" min="4" max="64" value="16">
+      <label class="check"><input type="checkbox" id="lower" checked> 小文字（a〜z）</label>
+      <label class="check"><input type="checkbox" id="upper" checked> 大文字（A〜Z）</label>
+      <label class="check"><input type="checkbox" id="digit" checked> 数字（0〜9）</label>
+      <label class="check"><input type="checkbox" id="symbol" checked> 記号</label>
+      <div id="symbols-box">
+        <label for="symbols">使う記号（サービスで使える記号だけに減らせます）</label>
+        <input type="text" id="symbols" value={CHARSETS.symbol} spellcheck="false" autocapitalize="off" autocomplete="off">
+        <div class="row symbol-presets">
+          <button type="button" class="ghost" data-symbols={CHARSETS.symbol}>すべて</button>
+          <button type="button" class="ghost" data-symbols="!#$%&*+-=?@_">よく使える記号</button>
+          <button type="button" class="ghost" data-symbols="-_">ハイフンと下線だけ</button>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="ambiguous" checked> 紛らわしい文字（0とO、1とlとI など）を使わない</label>
+      <label for="count">一度に作る数</label>
+      <select id="count">
+        <option value="1" selected>1個</option>
+        <option value="5">5個</option>
+        <option value="10">10個</option>
+        <option value="20">20個</option>
+      </select>
+    </details>
+  </form>
+
+  <ol class="card generated-list" id="generated-list" hidden></ol>
+
+  <h2>パスワード生成ツールの使い方</h2>
+  <ol>
+    <li>「よく使う形」から選びます。迷ったら「おまかせ」のままで大丈夫です。</li>
+    <li>表示されたパスワードを「コピー」して、登録画面に貼り付けます。気に入らなければ「別のを作る」を押します。</li>
+    <li>記号が使えない、文字数が決まっているなどの指定があるときは、「長さや文字の種類を変える」から合わせます。</li>
+  </ol>
+
+  <h2>今のパスワードの強さを調べる</h2>
   <form class="card" id="check-form" autocomplete="off">
     <label for="pw">調べるパスワード</label>
     <input type="text" id="pw" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="例：sakura2024">
@@ -22,22 +106,19 @@ import Tool from "../../layouts/Tool.astro";
 
   <section class="card result" id="check-result" hidden></section>
 
-  <h2>安全なパスワードを作る</h2>
-  <form class="card" id="gen-form">
-    <label for="len">長さ：<span id="len-value">16</span>文字</label>
-    <input type="range" id="len" min="8" max="64" value="16">
-    <label class="check"><input type="checkbox" id="lower" checked> 小文字（a〜z）</label>
-    <label class="check"><input type="checkbox" id="upper" checked> 大文字（A〜Z）</label>
-    <label class="check"><input type="checkbox" id="digit" checked> 数字（0〜9）</label>
-    <label class="check"><input type="checkbox" id="symbol" checked> 記号（!#$% など）</label>
-    <label class="check"><input type="checkbox" id="ambiguous" checked> 紛らわしい文字（0とO、1とlとI など）を使わない</label>
-    <output class="generated" id="generated" aria-live="polite"></output>
-    <div class="row">
-      <button type="button" id="regen">別のを作る</button>
-      <button type="button" id="copy">コピー</button>
-    </div>
-    <p class="hint" id="gen-info"></p>
-  </form>
+  <h2>安全なパスワードの作り方</h2>
+  <ul>
+    <li><strong>長くする</strong>：12文字以上、大事なアカウントは16文字以上にします。1文字増えるごとに、破るのに必要な手間は何十倍にもなります。</li>
+    <li><strong>ランダムにする</strong>：単語、名前、誕生日、キーボードの並び（qwerty・1234）は、総当たりより先に「辞書」で試されます。人が考えた文字列より、このページのような乱数で作った文字列のほうが安全です。</li>
+    <li><strong>サービスごとに変える</strong>：使い回すと、1か所から流出しただけでほかのサービスにもログインされます。</li>
+    <li><strong>二段階認証と組み合わせる</strong>：パスワードが知られても、確認コードがなければログインできなくなります。</li>
+  </ul>
+
+  <h2>記号が使えない・使える記号が決まっているとき</h2>
+  <p>サービスによっては、記号が使えない、または「_」「-」だけなど一部の記号しか使えないことがあります。記号が使えないときは「記号なし」を選び、長さを16文字以上にすれば十分な強さになります。使える記号が決まっているときは、「使う記号」の欄をその記号だけにしてください。</p>
+
+  <h2>作ったパスワードの管理</h2>
+  <p>ランダムなパスワードは覚えられないので、覚えようとしなくて大丈夫です。ブラウザやスマホのパスワード保存機能、またはパスワード管理アプリに保存しておくと、次からは自動で入力されます。紙にメモする場合は、どのサービスのものか分からない書き方にして、人目につかない場所に保管してください。</p>
 
   <h2>計算のしかた</h2>
   <p>パスワードに使われている文字の種類（小文字26・大文字26・数字10・記号32）を足し合わせ、「種類の数 ^ 文字数」を、ありうる組み合わせの数とします。総当たりでは平均して半分を試したところで当たるので、その回数を1秒あたりの試行回数で割って時間を出しています。</p>
@@ -45,12 +126,12 @@ import Tool from "../../layouts/Tool.astro";
   <p>ただし、よく使われるパスワードや単語・誕生日の組み合わせは、総当たりより先に「辞書」で試されます。そうした特徴が見つかった場合は、評価を下げて警告を出しています。</p>
 
   <h2>よくある質問</h2>
-  <h3>何文字あれば安全ですか？</h3>
-  <p>大文字・小文字・数字・記号をまぜた、ランダムな12文字以上が目安です。文字の種類を増やすより、長さを増やすほうが効果があります。このページで作れる16文字のパスワードなら、流出したデータを解析されても、破られるまでに途方もない時間がかかります。</p>
-  <h3>強いパスワードなら、使い回しても大丈夫？</h3>
-  <p>いいえ。どこか1つのサービスから流出すると、同じパスワードを使っているほかのサービスにもログインされてしまいます。サービスごとに別のパスワードにして、パスワード管理アプリやブラウザの保存機能で管理するのがおすすめです。</p>
-  <h3>二段階認証は必要ですか？</h3>
-  <p>使えるサービスでは、設定をおすすめします。パスワードが知られても、スマホに届く確認コードなどがなければログインできなくなります。</p>
+  {FAQ.map(({ q, a }) => (
+    <>
+      <h3>{q}</h3>
+      <p>{a}</p>
+    </>
+  ))}
 
   <p class="note">表示される時間は、計算上の目安です。実際の攻撃の速さは、サービスがパスワードをどう保存しているかや、攻撃者の設備によって大きく変わります。</p>
 
@@ -61,10 +142,31 @@ import Tool from "../../layouts/Tool.astro";
   </ul>
 
   <script>
-    import { checkPassword, crackSeconds, formatDuration, generatePassword, ATTACK_SPEEDS, LEVEL_LABELS } from "../../lib/password.js";
+    import { CHARSETS, checkPassword, crackSeconds, formatDuration, generatePassword, normalizeSymbols, ATTACK_SPEEDS, LEVEL_LABELS } from "../../lib/password.js";
 
     const $ = (id) => document.getElementById(id);
     const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+    const PRESETS = {
+      standard: { len: 16, lower: true, upper: true, digit: true, symbol: true, symbols: CHARSETS.symbol },
+      nosymbol: { len: 16, lower: true, upper: true, digit: true, symbol: false },
+      pin: { len: 6, lower: false, upper: false, digit: true, symbol: false },
+      long: { len: 32, lower: true, upper: true, digit: true, symbol: true, symbols: CHARSETS.symbol },
+    };
+
+    function applyPreset(name) {
+      const p = PRESETS[name];
+      $("len").value = p.len;
+      for (const key of ["lower", "upper", "digit", "symbol"]) $(key).checked = p[key];
+      if (p.symbols) $("symbols").value = p.symbols;
+      // 暗証番号は 0 と 1 も使う
+      $("ambiguous").checked = name !== "pin";
+    }
+
+    // 設定を手で変えたら、どのプリセットにも当てはまらない状態にする
+    function clearPreset() {
+      for (const r of document.querySelectorAll('input[name="preset"]')) r.checked = false;
+    }
 
     function renderCheck() {
       const pw = $("pw").value;
@@ -86,36 +188,77 @@ import Tool from "../../layouts/Tool.astro";
       $("check-result").hidden = false;
     }
 
+    async function copy(text, button) {
+      const label = button.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "コピーしました";
+        setTimeout(() => (button.textContent = label), 1500);
+      } catch {
+        button.textContent = "長押しでコピーしてください";
+      }
+    }
+
     function renderGenerated() {
       $("len-value").textContent = $("len").value;
+      $("symbols-box").hidden = !$("symbol").checked;
       const sets = { lower: $("lower").checked, upper: $("upper").checked, digit: $("digit").checked, symbol: $("symbol").checked };
+      const options = { excludeAmbiguous: $("ambiguous").checked, symbols: normalizeSymbols($("symbols").value) };
+      const count = Number($("count").value);
       try {
-        const pw = generatePassword(Number($("len").value), sets, { excludeAmbiguous: $("ambiguous").checked });
-        $("generated").textContent = pw;
-        const r = checkPassword(pw);
-        $("gen-info").textContent = `流出データを解析されても、破られるまで${formatDuration(crackSeconds(r.bits, ATTACK_SPEEDS.offline.perSecond))}（約${Math.round(r.bits)}ビット）`;
+        const list = Array.from({ length: count }, () => generatePassword(Number($("len").value), sets, options));
+        $("generated").textContent = list[0];
+        const r = checkPassword(list[0]);
+        const offline = formatDuration(crackSeconds(r.bits, ATTACK_SPEEDS.offline.perSecond));
+        const isPin = !sets.lower && !sets.upper && !sets.symbol;
+        $("gen-info").textContent = isPin
+          ? `${list[0].length}桁の暗証番号（${(10 ** list[0].length).toLocaleString("ja-JP")}通り）。何回か間違えるとロックされる、ATMやスマホのロック用に使ってください`
+          : `流出データを解析されても、破られるまで${offline}（約${Math.round(r.bits)}ビット・強さ：${LEVEL_LABELS[r.level]}）`;
         $("copy").disabled = false;
+
+        $("generated-list").hidden = count === 1;
+        $("generated-list").innerHTML = count === 1 ? "" :
+          list.map((pw) => `<li><code>${esc(pw)}</code><button type="button" class="ghost">コピー</button></li>`).join("") +
+          `<li class="copy-all"><button type="button" id="copy-all">${count}個まとめてコピー</button></li>`;
       } catch (err) {
         $("generated").textContent = "";
         $("gen-info").textContent = err.message;
         $("copy").disabled = true;
+        $("generated-list").hidden = true;
       }
     }
 
-    $("copy").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText($("generated").textContent);
-        $("copy").textContent = "コピーしました";
-        setTimeout(() => ($("copy").textContent = "コピー"), 1500);
-      } catch {
-        $("copy").textContent = "長押しでコピーしてください";
+    $("copy").addEventListener("click", () => copy($("generated").textContent, $("copy")));
+    $("generated-list").addEventListener("click", (e) => {
+      const button = e.target.closest("button");
+      if (!button) return;
+      if (button.id === "copy-all") {
+        copy([...$("generated-list").querySelectorAll("code")].map((c) => c.textContent).join("\n"), button);
+      } else {
+        copy(button.previousElementSibling.textContent, button);
       }
     });
 
+    for (const b of document.querySelectorAll("[data-symbols]")) {
+      b.addEventListener("click", () => {
+        $("symbols").value = b.dataset.symbols;
+        clearPreset();
+        renderGenerated();
+      });
+    }
+
+    $("gen-form").addEventListener("submit", (e) => e.preventDefault());
+    $("gen-form").addEventListener("input", (e) => {
+      if (e.target.name === "preset") applyPreset(e.target.value);
+      else if (e.target.id !== "count") clearPreset();
+      renderGenerated();
+    });
+    $("regen").addEventListener("click", renderGenerated);
+
     $("check-form").addEventListener("submit", (e) => e.preventDefault());
     $("pw").addEventListener("input", renderCheck);
-    $("gen-form").addEventListener("input", renderGenerated);
-    $("regen").addEventListener("click", renderGenerated);
+
+    applyPreset("standard");
     renderGenerated();
   </script>
 </Tool>

@@ -132,15 +132,23 @@ export function cryptoRandomUint32() {
   return globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
 }
 
+/** 入力された記号のうち、パスワードに使える記号だけを重複なしで残す */
+export function normalizeSymbols(input) {
+  return [...new Set([...String(input ?? "")].filter((c) => CHARSETS.symbol.includes(c)))].join("");
+}
+
 /**
  * パスワードを作る。選んだ文字の種類は必ず1文字以上入る。
  * sets: { lower, upper, digit, symbol } の true/false
+ * symbols: 記号を使うときの記号の一覧（省略すると CHARSETS.symbol の全部）
  */
-export function generatePassword(length, sets, { excludeAmbiguous = false, randomUint32 = cryptoRandomUint32 } = {}) {
-  const groups = Object.keys(CHARSETS)
+export function generatePassword(length, sets, { excludeAmbiguous = false, symbols, randomUint32 = cryptoRandomUint32 } = {}) {
+  const chars = { ...CHARSETS, symbol: symbols === undefined ? CHARSETS.symbol : normalizeSymbols(symbols) };
+  const groups = Object.keys(chars)
     .filter((key) => sets[key])
-    .map((key) => [...CHARSETS[key]].filter((c) => !excludeAmbiguous || !AMBIGUOUS.includes(c)));
+    .map((key) => [...chars[key]].filter((c) => !excludeAmbiguous || !AMBIGUOUS.includes(c)));
   if (groups.length === 0) throw new Error("文字の種類を1つ以上選んでください");
+  if (groups.some((g) => g.length === 0)) throw new Error("使える記号を1つ以上入れてください");
   if (!(length >= groups.length)) throw new Error(`長さは${groups.length}文字以上にしてください`);
 
   const pool = groups.flat();

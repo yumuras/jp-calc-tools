@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { CHARSETS, AMBIGUOUS, charsetSize, entropyBits, crackSeconds, formatDuration, checkPassword, generatePassword } from "../src/lib/password.js";
+import { CHARSETS, AMBIGUOUS, charsetSize, entropyBits, crackSeconds, formatDuration, checkPassword, generatePassword, normalizeSymbols } from "../src/lib/password.js";
 
 test("文字の種類の数", () => {
   assert.equal(charsetSize("abc"), 26);
@@ -97,4 +97,23 @@ test("生成：不正な指定はエラー", () => {
 
 test("ブラウザ用の乱数で動く", () => {
   assert.equal(generatePassword(16, { lower: true }).length, 16);
+});
+
+test("記号の指定：使える記号だけを重複なしで残す", () => {
+  assert.equal(normalizeSymbols("_-_ .@あa1"), "_-.@");
+  assert.equal(normalizeSymbols(""), "");
+  assert.equal(normalizeSymbols(undefined), "");
+});
+
+test("生成：指定した記号だけが入る", () => {
+  for (let n = 0; n < 200; n++) {
+    const pw = generatePassword(16, { lower: true, upper: true, digit: true, symbol: true }, { symbols: "_-" });
+    assert.match(pw, /^[a-zA-Z0-9_-]+$/);
+    assert.ok(/[_-]/.test(pw), pw);
+  }
+});
+
+test("生成：記号を使うのに使える記号が空ならエラー", () => {
+  assert.throws(() => generatePassword(12, { lower: true, symbol: true }, { symbols: "あ" }), /記号/);
+  assert.equal(generatePassword(12, { lower: true, symbol: false }, { symbols: "" }).length, 12);
 });

@@ -14,9 +14,11 @@ interface Props {
   category: "UtilitiesApplication" | "SecurityApplication";
   /** 最終更新日（YYYY-MM-DD） */
   updated: string;
+  /** よくある質問。渡すと構造化データ（FAQPage）にも入れる。本文の表示はページ側で同じ配列から作る */
+  faq?: { q: string; a: string }[];
 }
 
-const { slug, title, description, name, category, updated, crumb = name } = Astro.props;
+const { slug, title, description, name, category, updated, crumb = name, faq } = Astro.props;
 const path = `/${slug}/`;
 const url = new URL(path, Astro.site).href;
 const jsonLd = {
@@ -44,6 +46,12 @@ const jsonLd = {
     },
   ],
 };
+if (faq?.length) {
+  jsonLd["@graph"].push({
+    "@type": "FAQPage",
+    mainEntity: faq.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+  });
+}
 const [y, m, d] = updated.split("-").map(Number);
 const others = TOOLS.filter((t) => t.slug !== slug);
 ---
