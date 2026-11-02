@@ -559,3 +559,11 @@ ol.file-list li > span { display: inline; margin-right: 6px; }
 .split-mode label { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 4px 0; }
 .split-mode input { width: auto; }
 .pdf-status { font-size: 0.9rem; margin: 10px 0 0; min-height: 1.2em; }
+
+/* ---------- 解説記事の表：名前の列だけ折り返す ---------- */
+table.compact td.wrap { white-space: normal; min-width: 5.5em; }
+table.compact td.wrap small { color: var(--muted); }
+@media (max-width: 420px) {
+  table.compact { font-size: 0.78rem; }
+  table.compact th, table.compact td { padding: 7px 3px; }
+}

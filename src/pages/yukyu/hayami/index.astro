@@ -1,0 +1,72 @@
+---
+// 解説記事：パート・アルバイトの有給日数の早見表。表は有給ツールと同じ GRANT_TABLE から作る。
+import Article from "../../../layouts/Article.astro";
+import { GRANT_TABLE, WORK_TYPES, fiveDayDutyStartYears, formatYears } from "../../../lib/yukyu.js";
+
+const ORDER = ["full", "w4", "w3", "w2", "w1"] as const;
+const LABEL = {
+  full: "週5日以上（または週30時間以上）",
+  w4: "週4日",
+  w3: "週3日",
+  w2: "週2日",
+  w1: "週1日",
+};
+const SHORT = { full: "週5日以上※", w4: "週4日", w3: "週3日", w2: "週2日", w1: "週1日" };
+const YEARS = GRANT_TABLE.full.map((_, i) => formatYears(0.5 + i) + (i === GRANT_TABLE.full.length - 1 ? "以上" : ""));
+const duty = Object.fromEntries(ORDER.map((t) => [t, fiveDayDutyStartYears(t)]));
+---
+<Article
+  parent="yukyu"
+  slug="hayami"
+  title="パート・アルバイトの有給日数 早見表｜週3日・週4日は何日もらえる？"
+  description="パート・アルバイトの有給休暇の日数を、週の勤務日数と勤続年数の早見表にしました。週3日なら入社6か月で5日、週4日なら7日。週30時間以上働く人は正社員と同じ日数です。"
+  name="パート・アルバイトの有給日数 早見表"
+  published="2026-11-02"
+  updated="2026-11-02"
+>
+  <Fragment slot="header">
+    <h1>パート・アルバイトの有給日数 早見表</h1>
+    <p class="lead">入社6か月で、週3日勤務なら{GRANT_TABLE.w3[0]}日、週4日なら{GRANT_TABLE.w4[0]}日の有給休暇がもらえます。週30時間以上働く人は、勤務日数にかかわらず正社員と同じ{GRANT_TABLE.full[0]}日です。</p>
+  </Fragment>
+
+  <h2>勤続年数ごとの有給日数</h2>
+  <p>法律（労働基準法39条）で決まっている最低の日数です。会社がこれより多く決めている場合は、そちらが優先されます。</p>
+  <div class="scroll">
+    <table id="grant" class="compact">
+      <thead><tr><th>勤続年数</th>{ORDER.map((t) => <th>{SHORT[t]}</th>)}</tr></thead>
+      <tbody>
+        {YEARS.map((y, i) => (
+          <tr><td>{y}</td>{ORDER.map((t) => <td>{GRANT_TABLE[t][i]}日</td>)}</tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p class="hint">※週4日以下でも、週30時間以上働く人はこの列です。週の勤務日数が決まっていない人は、1年間の勤務日数で区分します（{ORDER.slice(1).map((t) => WORK_TYPES[t]).join("、")}）。</p>
+
+  <h2>年5日の取得義務はいつから？</h2>
+  <p>1回に10日以上の有給がもらえる人は、会社が1年以内に5日を取らせる義務があります。パートの場合、10日に届くのは次の時期です。</p>
+  <ul>
+    {ORDER.map((t) => (
+      <li>{LABEL[t]}：{duty[t] === null ? "10日に届かないので、取得義務の対象外" : `勤続${formatYears(duty[t])}から`}</li>
+    ))}
+  </ul>
+
+  <h2>よくある質問</h2>
+  <h3>週3日でも、1日の時間が長ければ増えますか？</h3>
+  <p>週30時間以上なら、週3日でも週5日以上と同じ日数です。週30時間未満の場合は、日数だけで決まります。</p>
+  <h3>使わなかった有給はどうなりますか？</h3>
+  <p>有給休暇の時効は2年です。使わなかった分は翌年まで持ち越せるので、多いときは直近2回分を合わせて持っていることになります。</p>
+  <h3>入社6か月より前はもらえませんか？</h3>
+  <p>法律では、6か月続けて働き、決められた日の8割以上出勤すると最初の有給がもらえます。会社によっては、それより早く与えていることもあります。</p>
+
+  <p class="note">このページは法律で決まった最低日数の目安です。実際の日数や取り方は、勤務先の就業規則も確認してください。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li><a href="https://laws.e-gov.go.jp/law/322AC0000000049" rel="noopener">労働基準法</a>（e-Gov法令検索）第39条（年次有給休暇）</li>
+    <li><a href="https://laws.e-gov.go.jp/law/322M40000100023" rel="noopener">労働基準法施行規則</a>（e-Gov法令検索）第24条の3（比例付与の日数）</li>
+  </ul>
+
+  <li slot="related"><a href="/yukyu/">パート・アルバイトの有給は何日？</a>：入社日を入れると、次にもらえる日と日数がわかる</li>
+  <li slot="related"><a href="/kyuyo/jikyu-gesshu/">時給から月収・年収の早見表</a>：時給1,000円〜2,000円・週3〜5日</li>
+</Article>

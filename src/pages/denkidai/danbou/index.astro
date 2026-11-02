@@ -1,43 +1,19 @@
 ---
 // 解説記事：暖房の電気代比較。表の数字は tests/danbou.test.mjs で電気代ツールの計算と照合している。
-import Base from "../../../layouts/Base.astro";
-
-const path = "/denkidai/danbou/";
-const title = "暖房の電気代を比較｜エアコン・電気ストーブ・こたつは1時間いくら？";
-const description = "エアコン・電気ストーブ・セラミックファンヒーター・オイルヒーター・こたつ・ホットカーペット・電気毛布の電気代を、1時間・1か月で比べました。部屋全体を暖めるならエアコン、体だけならこたつや電気毛布が安く済みます。";
-const updated = "2026-10-29";
-const site = (p) => new URL(p, Astro.site).href;
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Article",
-      headline: title,
-      description,
-      url: site(path),
-      inLanguage: "ja",
-      datePublished: "2026-10-29",
-      dateModified: updated,
-      author: { "@type": "Person", name: "くらしと仕事の計算ツール 運営者", url: site("/about/") },
-    },
-    {
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "くらしと仕事の計算ツール", item: site("/") },
-        { "@type": "ListItem", position: 2, name: "家電の電気代計算", item: site("/denkidai/") },
-        { "@type": "ListItem", position: 3, name: "暖房の電気代比較", item: site(path) },
-      ],
-    },
-  ],
-};
-const [y, m, d] = updated.split("-").map(Number);
+import Article from "../../../layouts/Article.astro";
 ---
-<Base title={title} description={description} path={path} jsonLd={jsonLd}>
+<Article
+  parent="denkidai"
+  slug="danbou"
+  title="暖房の電気代を比較｜エアコン・電気ストーブ・こたつは1時間いくら？"
+  description="エアコン・電気ストーブ・セラミックファンヒーター・オイルヒーター・こたつ・ホットカーペット・電気毛布の電気代を、1時間・1か月で比べました。部屋全体を暖めるならエアコン、体だけならこたつや電気毛布が安く済みます。"
+  name="暖房の電気代比較"
+  published="2026-10-29"
+  updated="2026-10-29"
+>
   <Fragment slot="header">
-    <nav class="crumbs" aria-label="パンくずリスト"><a href="/">トップ</a><span aria-hidden="true">›</span><a href="/denkidai/">家電の電気代計算</a><span aria-hidden="true">›</span><span>暖房の電気代比較</span></nav>
     <h1>暖房の電気代を比較</h1>
     <p class="lead">エアコン・電気ストーブ・こたつなど、7種類の暖房の電気代を1時間と1か月で比べました。結論は「部屋全体を暖めるならエアコン、自分の体だけならこたつや電気毛布」です。</p>
-
   </Fragment>
   <h2>1時間・1か月の電気代の比較表</h2>
   <p>1日8時間・30日使った場合です。電気料金の単価は目安単価の31円/kWhで計算しています。</p>
@@ -91,14 +67,7 @@ const [y, m, d] = updated.split("-").map(Number);
   <ul class="sources">
     <li><a href="https://www.eftc.or.jp/" rel="noopener">全国家庭電気製品公正取引協議会</a>が定める電力料金の目安単価（31円/kWh・税込）</li>
   </ul>
-
-  <p class="lead">最終更新：<time datetime={updated}>{y}年{m}月{d}日</time></p>
-  <section class="related">
-      <h2>関連するページ</h2>
-      <ul>
-        <li><a href="/denkidai/">家電の電気代計算</a>：消費電力と使う時間から、1時間・1日・1か月・1年の電気代</li>
-        <li><a href="/kyuyo/">時給・月給・年収の換算</a>：時給・日給・月給・年収をまとめて換算</li>
-      </ul>
-
-  </section>
-</Base>
+  <li slot="related"><a href="/denkidai/kaden/">家電ごとの電気代一覧</a>：冷蔵庫・テレビ・ドライヤーなど14種類の1時間・1か月・1年の電気代</li>
+  <li slot="related"><a href="/denkidai/">家電の電気代計算</a>：消費電力と使う時間から、1時間・1日・1か月・1年の電気代</li>
+  <li slot="related"><a href="/kyuyo/">時給・月給・年収の換算</a>：時給・日給・月給・年収をまとめて換算</li>
+</Article>

@@ -1,0 +1,71 @@
+---
+// 解説記事：時給から月収・年収の早見表。表は時給換算ツールと同じ convertPay からビルド時に作る。
+import Article from "../../../layouts/Article.astro";
+import { hourlyTable, formatYen } from "../../../lib/kyuyo.js";
+
+const HOURLY = [1000, 1050, 1100, 1150, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000];
+const DAYS = [3, 4, 5];
+const rows = hourlyTable(HOURLY, { hoursPerDay: 8, daysList: DAYS });
+const rows6h = hourlyTable(HOURLY, { hoursPerDay: 6, daysList: DAYS });
+const man = (yen: number) => `${(Math.round(yen / 1000) / 10).toLocaleString("ja-JP")}万円`;
+const ex = rows.find((r) => r.hourly === 1200)!;
+---
+<Article
+  parent="kyuyo"
+  slug="jikyu-gesshu"
+  title="時給から月収・年収の早見表｜時給1,000円〜2,000円・週3〜5日"
+  description="時給1,000円〜2,000円で週3日・4日・5日働いたときの月収と年収の早見表です。1日8時間と6時間の2通り。時給1,200円・週5日・1日8時間なら月約20.8万円、年約250万円です。"
+  name="時給から月収・年収の早見表"
+  published="2026-11-02"
+  updated="2026-11-02"
+>
+  <Fragment slot="header">
+    <h1>時給から月収・年収の早見表</h1>
+    <p class="lead">時給1,200円で週5日・1日8時間働くと、月収は約{man(ex.monthly[5])}、年収は約{man(ex.annual[5])}です。ほかの時給と日数は下の表で確認できます。</p>
+  </Fragment>
+
+  <h2>1日8時間の場合</h2>
+  <p>金額は額面（税金や社会保険料を引く前）で、賞与・残業代・交通費は含みません。</p>
+  <div class="scroll">
+    <table id="hourly-8h" class="compact">
+      <thead><tr><th rowspan="2">時給</th><th colspan="3">月収</th><th>年収</th></tr><tr><th>週3日</th><th>週4日</th><th>週5日</th><th>週5日</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr><td>{formatYen(r.hourly)}</td>{DAYS.map((d) => <td>{formatYen(r.monthly[d])}</td>)}<td>{man(r.annual[5])}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>1日6時間の場合</h2>
+  <div class="scroll">
+    <table id="hourly-6h" class="compact">
+      <thead><tr><th rowspan="2">時給</th><th colspan="3">月収</th><th>年収</th></tr><tr><th>週3日</th><th>週4日</th><th>週5日</th><th>週5日</th></tr></thead>
+      <tbody>
+        {rows6h.map((r) => (
+          <tr><td>{formatYen(r.hourly)}</td>{DAYS.map((d) => <td>{formatYen(r.monthly[d])}</td>)}<td>{man(r.annual[5])}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>計算のしかた</h2>
+  <p>月収は「時給 × 1日の時間 × 週の日数 × 52週 ÷ 12か月」で計算しています。1年は52週なので、1か月はならすと約4.33週です。</p>
+  <p>たとえば時給1,200円・1日8時間・週5日なら、1,200円 × 8時間 × 5日 × 52週 ÷ 12 ＝ {formatYen(ex.monthly[5])}です。年収はその12か月分で{formatYen(ex.annual[5])}になります。</p>
+
+  <h2>よくある質問</h2>
+  <h3>「月20日勤務」で計算した額と少し違うのはなぜですか？</h3>
+  <p>週5日で働くと、1か月の勤務日は平均で約21.7日（52週 × 5日 ÷ 12）になります。月20日で計算するより少し多くなります。実際の月ごとの日数は、祝日や月の長さで変わります。</p>
+  <h3>手取りはいくらになりますか？</h3>
+  <p>この表は額面です。手取りは、税金や社会保険料が人によって違うため、ここでは計算していません。</p>
+
+  <p class="note">表の金額は、休まず同じ時間働いた場合の目安です。シフトの増減・残業・深夜手当などで実際の金額は変わります。</p>
+
+  <h2>出典・更新日</h2>
+  <ul class="sources">
+    <li>計算はすべて四則演算です。1年＝52週、1か月＝52週÷12で計算しています（法令や毎年変わる数字は使っていません）。</li>
+  </ul>
+
+  <li slot="related"><a href="/kyuyo/">時給・月給・年収の換算</a>：自分の時給・日数・賞与で計算する</li>
+  <li slot="related"><a href="/yukyu/hayami/">パート・アルバイトの有給日数 早見表</a>：週の勤務日数と勤続年数でわかる</li>
+</Article>
